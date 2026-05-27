@@ -12,38 +12,55 @@ export default async function handler(req, res) {
   if (type === 'jobs') {
     const ADZUNA_ID  = process.env.ADZUNA_APP_ID;
     const ADZUNA_KEY = process.env.ADZUNA_APP_KEY;
+
     if (!ADZUNA_ID || !ADZUNA_KEY) {
-      return res.status(500).json({ error: 'Adzuna credentials not set in environment variables' });
+      return res.status(500).json({ error: 'ADZUNA_APP_ID or ADZUNA_APP_KEY not set in environment variables' });
     }
 
-    // Adzuna country codes
-    const CC = { Netherlands: 'nl', Sweden: 'se', Finland: 'fi', Germany: 'de', UK: 'gb' };
+    const CC = { Netherlands: 'nl', Sweden: 'se', Finland: 'fi' };
     const cc = CC[country] || 'nl';
     const pageNum = page || 1;
 
     const params = new URLSearchParams({
       app_id: ADZUNA_ID,
       app_key: ADZUNA_KEY,
-      results_per_page: 10,
+      results_per_page: '10',
       what: query || 'Java Backend Engineer',
-      content_type: 'application/json',
-      ...(salary_min ? { salary_min } : {}),
-      ...(date_posted ? { days_old: date_posted } : {})
+      'content-type': 'application/json',
+      sort_by: 'date'
     });
 
-    const url = `https://api.adzuna.com/v1/api/jobs/${cc}/search/${pageNum}?${params}`;
+    if (salary_min) params.set('salary_min', salary_min);
+    if (date_posted) params.set('days_old', date_posted);
+
+    const url = `https://api.adzuna.com/v1/api/jobs/${cc}/search/${pageNum}?${params.toString()}`;
 
     try {
-      const r = await fetch(url);
-      const data = await r.json();
+      const r = await fetch(url, {
+        headers: { 'Accept': 'application/json' }
+      });
+
+      const text = await r.text();
+
+      // Check if response is actually JSON
+      if (!text.startsWith('{') && !text.startsWith('[')) {
+        return res.status(500).json({ 
+          error: 'Adzuna returned non-JSON response', 
+          detail: text.substring(0, 200),
+          url: url.replace(ADZUNA_KEY, '***')
+        });
+      }
+
+      const data = JSON.parse(text);
       if (!r.ok) return res.status(r.status).json({ error: 'Adzuna error', detail: data });
       return res.status(200).json({ jobs: data.results || [], total: data.count || 0 });
+
     } catch (e) {
       return res.status(500).json({ error: 'Adzuna fetch failed', detail: e.message });
     }
   }
 
-  // ── Groq AI (cover letter / resume / linkedin) ─────────────────
+  // ── Groq AI ────────────────────────────────────────────────────
   if (type === 'ai') {
     if (!process.env.GROQ_API_KEY) {
       return res.status(500).json({ error: 'GROQ_API_KEY not set' });
@@ -64,14 +81,16 @@ export default async function handler(req, res) {
           messages: [{ role: 'user', content: prompt }]
         })
       });
+
       const gd = await gr.json();
       if (!gr.ok) return res.status(gr.status).json({ error: 'Groq error', detail: gd });
       const text = gd.choices?.[0]?.message?.content || '';
       return res.status(200).json({ content: [{ type: 'text', text }] });
+
     } catch (e) {
       return res.status(500).json({ error: 'Groq error', detail: e.message });
     }
   }
 
-  return res.status(400).json({ error: 'Invalid request type. Use "jobs" or "ai".' });
+  return res.status(400).json({ error: 'Invalid type. Use "jobs" or "ai".' });
 }
