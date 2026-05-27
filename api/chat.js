@@ -1,562 +1,77 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Nordic Job Agent — Java Backend Engineer</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-<style>
-:root{--bg:#f5f4f0;--surface:#fff;--surface2:#f0ede6;--border:#e2ddd6;--text:#1a1916;--muted:#7a766e;--blue:#1a4fd6;--bl:#e8effe;--bm:#3d6be8;--green:#1a6b45;--gl:#e6f4ed;--amber:#92520a;--al:#fef3e2;--red:#b91c1c;--rl:#fef2f2;--r:10px;--rl2:14px;--f:'DM Sans',sans-serif;--m:'DM Mono',monospace}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--f);background:var(--bg);color:var(--text);min-height:100vh}
-.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
-.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:22px 15px;display:flex;flex-direction:column;gap:3px;position:sticky;top:0;height:100vh;overflow-y:auto}
-.main{padding:26px 30px;overflow-y:auto;max-height:100vh}
-.logo{display:flex;align-items:center;gap:10px;margin-bottom:22px}
-.logo-icon{width:33px;height:33px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;flex-shrink:0}
-.logo-text{font-size:13px;font-weight:600;color:var(--text)}.logo-sub{font-size:11px;color:var(--muted)}
-.nl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:13px 0 4px 8px}
-.nb{display:flex;align-items:center;gap:8px;padding:8px 11px;border-radius:var(--r);font-size:13px;color:var(--muted);cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:var(--f);transition:all .12s}
-.nb:hover{background:var(--surface2);color:var(--text)}.nb.active{background:var(--bl);color:var(--blue);font-weight:500}
-.nb svg{width:15px;height:15px;flex-shrink:0}
-.prof{margin-top:auto;background:var(--surface2);border-radius:var(--r);padding:11px 13px}
-.prof p{font-size:12px;color:var(--muted);line-height:1.5}.prof strong{color:var(--text);font-weight:500}
-.ttags{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
-.ttag{font-size:10px;font-family:var(--m);background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:2px 6px;color:var(--muted)}
-.panel{display:none}.panel.active{display:block}
-.ph{margin-bottom:22px}.ph h1{font-size:20px;font-weight:600;margin-bottom:3px}.ph p{font-size:13px;color:var(--muted)}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl2);padding:18px;margin-bottom:14px}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:13px}
-.fg{display:flex;flex-direction:column;gap:4px}
-.fg label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-input,select,textarea{font-family:var(--f);font-size:13px;padding:8px 11px;border:1px solid var(--border);border-radius:var(--r);background:var(--bg);color:var(--text);outline:none;transition:border-color .12s;width:100%}
-input:focus,select:focus,textarea:focus{border-color:var(--bm)}
-textarea{resize:vertical;line-height:1.6}
-.cr{display:flex;gap:7px;margin-bottom:13px;flex-wrap:wrap}
-.cb{display:flex;align-items:center;gap:5px;padding:7px 12px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);font-size:13px;color:var(--muted);cursor:pointer;transition:all .12s;font-family:var(--f)}
-.cb.active{background:var(--bl);border-color:var(--bm);color:var(--blue);font-weight:500}
-.banner{border-radius:var(--r);padding:9px 13px;font-size:13px;display:flex;align-items:flex-start;gap:7px;margin-bottom:13px}
-.banner.green{background:var(--gl);color:var(--green)}.banner.amber{background:var(--al);color:var(--amber)}.banner.blue{background:var(--bl);color:var(--blue)}
-.btn{padding:8px 15px;font-size:13px;font-weight:500;border-radius:var(--r);border:none;cursor:pointer;font-family:var(--f);display:inline-flex;align-items:center;gap:6px;transition:opacity .12s;text-decoration:none}
-.btn:disabled{opacity:.5;cursor:not-allowed}
-.btn-blue{background:var(--blue);color:#fff;width:100%;justify-content:center}.btn-blue:hover:not(:disabled){background:#1540b0}
-.btn-green{background:var(--green);color:#fff;justify-content:center}.btn-green:hover:not(:disabled){background:#145535}
-.btn-amber{background:var(--amber);color:#fff;justify-content:center}.btn-amber:hover:not(:disabled){background:#7a4408}
-.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}.btn-outline:hover{background:var(--surface2)}
-.btn-sm{padding:6px 12px;font-size:12px}
-.bg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
-.stats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.sp{font-size:12px;padding:3px 9px;border-radius:20px;background:var(--surface);border:1px solid var(--border);color:var(--muted)}
-.sp.green{background:var(--gl);color:var(--green);border-color:#b7deca}
-.jc{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl2);padding:17px;margin-bottom:10px;transition:box-shadow .12s}
-.jc:hover{box-shadow:0 3px 12px rgba(0,0,0,.06)}
-.jt{display:flex;justify-content:space-between;align-items:flex-start;gap:9px;margin-bottom:5px}
-.jtitle{font-size:15px;font-weight:600;color:var(--text)}
-.br{display:flex;gap:4px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end}
-.badge{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500}
-.badge.country{background:var(--bl);color:var(--blue)}.badge.visa{background:var(--gl);color:var(--green)}.badge.eng{background:var(--al);color:var(--amber)}
-.jco{font-size:13px;color:var(--muted);margin-bottom:7px;font-weight:500}
-.jm{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:8px}
-.mi{font-size:12px;color:var(--muted)}
-.jd{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.jd.expanded{display:block}
-.jf{display:flex;gap:7px;align-items:center;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--border)}
-.load{display:flex;align-items:center;gap:11px;color:var(--muted);font-size:13px;padding:18px 0}
-.spin{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .75s linear infinite;flex-shrink:0}
-@keyframes spin{to{transform:rotate(360deg)}}
-.err{background:var(--rl);border:1px solid #fca5a5;border-radius:var(--r);padding:11px 15px;font-size:13px;color:var(--red);margin-bottom:12px}
-.pag{display:flex;align-items:center;justify-content:center;gap:7px;padding:16px 0;flex-wrap:wrap}
-.pb{padding:6px 14px;font-size:13px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font-family:var(--f);transition:all .12s}
-.pb:hover:not(:disabled){background:var(--surface2)}.pb.active{background:var(--blue);color:#fff;border-color:var(--blue)}.pb:disabled{opacity:.4;cursor:not-allowed}
-.stitle{font-size:13px;font-weight:600;color:var(--text);margin-bottom:9px;padding-bottom:6px;border-bottom:1px solid var(--border)}
-.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px}
-.pcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:11px 13px}
-.pname{font-size:13px;font-weight:500;margin-bottom:2px}.pdesc{font-size:12px;color:var(--muted);margin-bottom:5px;line-height:1.5}
-.tgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
-.tc{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl2);padding:14px 16px}
-.tc h3{font-size:13px;font-weight:600;margin-bottom:8px}
-.tr{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:13px}
-.tr:last-child{border-bottom:none}.tr .lb{color:var(--muted)}.good{color:var(--green);font-weight:500}.bad{color:var(--red)}
-.ist{background:var(--bl);border-radius:var(--r);padding:10px 12px;margin-top:10px}
-.ist p{font-size:13px;color:var(--blue);font-weight:500;margin-bottom:3px}.ist span{font-size:12px;color:var(--bm)}
-.cgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
-.cc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:13px;cursor:pointer;transition:all .12s}
-.cc:hover{border-color:var(--bm);background:var(--bl)}.cc h4{font-size:13px;font-weight:600;margin-bottom:2px}.cc p{font-size:12px;color:var(--muted)}
-.out-box{background:var(--bg);border-radius:var(--r);padding:14px;font-size:13px;line-height:1.9;color:var(--text);white-space:pre-wrap;font-family:var(--f);border:1px solid var(--border)}
-.crow{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
-.crow h3{font-size:13px;font-weight:600}
-.no-results{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px}
-@media(max-width:768px){.app{grid-template-columns:1fr}.sidebar{position:static;height:auto;padding:13px}.main{padding:14px;max-height:none}.g2,.g3,.pgrid,.tgrid,.cgrid,.bg3{grid-template-columns:1fr}.prof{display:none}}
-</style>
-</head>
-<body>
-<div class="app">
-<aside class="sidebar">
-  <div class="logo">
-    <div class="logo-icon">⚡</div>
-    <div><div class="logo-text">Nordic Job Agent</div><div class="logo-sub">NL · SE · FI</div></div>
-  </div>
-  <span class="nl">Navigation</span>
-  <button class="nb active" id="nav-search" onclick="showPanel('search')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Search Jobs
-  </button>
-  <button class="nb" id="nav-apply" onclick="showPanel('apply')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>Cover Letter & Resume
-  </button>
-  <button class="nb" id="nav-portals" onclick="showPanel('portals')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>Job Portals
-  </button>
-  <button class="nb" id="nav-timing" onclick="showPanel('timing')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Best Timing
-  </button>
-  <button class="nb" id="nav-companies" onclick="showPanel('companies')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Top Companies
-  </button>
-  <div class="prof">
-    <p><strong>Your profile</strong><br/>Senior Java Backend Engineer · 6+ yrs · India → NL/SE</p>
-    <div class="ttags">
-      <span class="ttag">Java 17</span><span class="ttag">Spring Boot</span><span class="ttag">Kubernetes</span>
-      <span class="ttag">Kafka</span><span class="ttag">GCP</span><span class="ttag">AWS</span>
-    </div>
-  </div>
-</aside>
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-<main class="main">
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-<!-- SEARCH -->
-<div class="panel active" id="panel-search">
-  <div class="ph"><h1>Find Real Jobs</h1><p>Live job listings from Adzuna — real titles, real companies, real apply links</p></div>
-  <div class="card">
-    <div class="g2">
-      <div class="fg"><label>Job title / keywords</label><input id="s-title" value="Java Backend Engineer" placeholder="e.g. Java Backend Engineer"/></div>
-      <div class="fg"><label>City (optional)</label><input id="s-loc" placeholder="Amsterdam, Stockholm…"/></div>
-    </div>
-    <div class="g3">
-      <div class="fg"><label>Date posted</label>
-        <select id="s-date"><option value="">Any time</option><option value="1">Last 24 hours</option><option value="3">Last 3 days</option><option value="7" selected>Last 7 days</option><option value="14">Last 14 days</option><option value="30">Last 30 days</option></select>
-      </div>
-      <div class="fg"><label>Min salary (EUR/yr)</label>
-        <select id="s-sal"><option value="">Any salary</option><option value="50000">€50k+</option><option value="70000">€70k+</option><option value="90000" selected>€90k+</option><option value="110000">€110k+</option></select>
-      </div>
-      <div class="fg"><label>Sort by</label>
-        <select id="s-sort"><option value="date">Most recent</option><option value="salary">Highest salary</option><option value="relevance">Most relevant</option></select>
-      </div>
-    </div>
-    <p style="font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Search in</p>
-    <div class="cr">
-      <button class="cb active" data-c="Netherlands" onclick="toggleC(this)">🇳🇱 Netherlands</button>
-      <button class="cb" data-c="Sweden" onclick="toggleC(this)">🇸🇪 Sweden</button>
-      <button class="cb" data-c="Finland" onclick="toggleC(this)">🇫🇮 Finland</button>
-    </div>
-    <div class="banner green"><span>💡</span><span>Results are real live jobs from Adzuna. Click "✍ Cover Letter" on any job to auto-fill the title, company and description — then generate your cover letter instantly.</span></div>
-    <button class="btn btn-blue" id="searchBtn" onclick="runSearch(1)">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      Search Real Jobs
-    </button>
-  </div>
-  <div id="resultsArea"></div>
-  <div id="pagination"></div>
-</div>
+  const { type, prompt, query, country, page, salary_min, date_posted } = req.body;
 
-<!-- APPLY -->
-<div class="panel" id="panel-apply">
-  <div class="ph"><h1>Cover Letter &amp; Resume</h1><p>Auto-filled from real job listings — or paste any job description manually</p></div>
-  <div class="card">
-    <div class="g2" style="margin-bottom:10px;">
-      <div class="fg"><label>Job Title</label><input id="a-title" placeholder="Auto-filled when you click Cover Letter on a job"/></div>
-      <div class="fg"><label>Company</label><input id="a-company" placeholder="Auto-filled from job listing"/></div>
-    </div>
-    <div class="g2" style="margin-bottom:10px;">
-      <div class="fg"><label>Country</label>
-        <select id="a-country"><option value="Netherlands">Netherlands</option><option value="Sweden">Sweden</option><option value="Finland">Finland</option></select>
-      </div>
-      <div class="fg"><label>Your Full Name</label><input id="a-name" placeholder="e.g. Rahul Sharma"/></div>
-    </div>
-    <div class="fg" style="margin-bottom:10px;">
-      <label>Job Description (auto-filled or paste manually)</label>
-      <textarea id="a-jd" rows="6" placeholder="Auto-filled from real job listing when you click Cover Letter…"></textarea>
-    </div>
-    <div class="fg" style="margin-bottom:15px;">
-      <label>Your Resume / Experience (optional — improves output quality)</label>
-      <textarea id="a-resume" rows="4" placeholder="Paste your resume or key experience here for better tailoring…"></textarea>
-    </div>
-    <div class="bg3">
-      <button class="btn btn-blue" id="btn-cl" onclick="genCL()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Cover Letter
-      </button>
-      <button class="btn btn-green" id="btn-rb" onclick="genRB()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/></svg>Resume Bullets
-      </button>
-      <button class="btn btn-amber" id="btn-li" onclick="genLI()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>LinkedIn Msg
-      </button>
-    </div>
-  </div>
-  <div id="applyOut"></div>
-</div>
+  // ── ADZUNA job search ──────────────────────────────────────────
+  if (type === 'jobs') {
+    const ADZUNA_ID  = process.env.ADZUNA_APP_ID;
+    const ADZUNA_KEY = process.env.ADZUNA_APP_KEY;
+    if (!ADZUNA_ID || !ADZUNA_KEY) {
+      return res.status(500).json({ error: 'Adzuna credentials not set in environment variables' });
+    }
 
-<!-- PORTALS -->
-<div class="panel" id="panel-portals">
-  <div class="ph"><h1>Job Portals</h1><p>Best portals for Java engineers relocating from India</p></div>
-  <div class="stitle">🇳🇱 Netherlands</div>
-  <div class="pgrid">
-    <div class="pcard"><div class="pname">LinkedIn Jobs</div><div class="pdesc">Best for visa-sponsored roles &amp; recruiter outreach</div><span class="badge visa">Visa sponsorship</span></div>
-    <div class="pcard"><div class="pname">Indeed NL</div><div class="pdesc">High volume — startups and consulting firms</div><span class="badge country">High volume</span></div>
-    <div class="pcard"><div class="pname">IamExpat Jobs</div><div class="pdesc">English-speaking expat roles</div><span class="badge eng">Expat-friendly</span></div>
-    <div class="pcard"><div class="pname">TechMeAbroad</div><div class="pdesc">Relocation + visa sponsorship focus</div><span class="badge visa">Visa sponsorship</span></div>
-    <div class="pcard"><div class="pname">Undutchables</div><div class="pdesc">Specialises in international candidates</div><span class="badge eng">Expat-friendly</span></div>
-    <div class="pcard"><div class="pname">Nationale Vacaturebank</div><div class="pdesc">Biggest Dutch local job portal</div><span class="badge country">Local</span></div>
-  </div>
-  <div class="stitle">🇸🇪 Sweden</div>
-  <div class="pgrid">
-    <div class="pcard"><div class="pname">LinkedIn Jobs</div><div class="pdesc">Best for visa-sponsored roles &amp; recruiter outreach</div><span class="badge visa">Visa sponsorship</span></div>
-    <div class="pcard"><div class="pname">The Hub</div><div class="pdesc">Best for Nordic startup ecosystem</div><span class="badge eng">Startups</span></div>
-    <div class="pcard"><div class="pname">SverigeDev</div><div class="pdesc">Massive Swedish developer jobs aggregator</div><span class="badge country">Dev-focused</span></div>
-    <div class="pcard"><div class="pname">Academic Work</div><div class="pdesc">Great for consultants and engineers</div><span class="badge country">Engineering</span></div>
-    <div class="pcard"><div class="pname">Arbetsförmedlingen</div><div class="pdesc">Official Swedish government portal</div><span class="badge country">Official</span></div>
-    <div class="pcard"><div class="pname">Indeed SE</div><div class="pdesc">Aggregated Swedish listings</div><span class="badge country">High volume</span></div>
-  </div>
-  <div class="banner amber"><span>⚠️</span><span>Sweden's market is slower — focus on fintech startups like Klarna and Einride rather than large corporates.</span></div>
-</div>
+    // Adzuna country codes
+    const CC = { Netherlands: 'nl', Sweden: 'se', Finland: 'fi', Germany: 'de', UK: 'gb' };
+    const cc = CC[country] || 'nl';
+    const pageNum = page || 1;
 
-<!-- TIMING -->
-<div class="panel" id="panel-timing">
-  <div class="ph"><h1>Best Timing to Apply</h1><p>Timing matters — early applicants get more ATS visibility</p></div>
-  <div class="tgrid">
-    <div class="tc"><h3>🇳🇱 Netherlands — Best months</h3>
-      <div class="tr"><span class="lb">Jan → Apr</span><span class="good">✓ Apply</span></div>
-      <div class="tr"><span class="lb">Sep → Nov</span><span class="good">✓ Apply</span></div>
-      <div class="tr"><span class="lb">Mid Jul → Aug</span><span class="bad">✗ Summer holidays</span></div>
-      <div class="tr"><span class="lb">Late December</span><span class="bad">✗ Holiday freeze</span></div>
-    </div>
-    <div class="tc"><h3>🇸🇪 Sweden — Best months</h3>
-      <div class="tr"><span class="lb">Jan → Mar</span><span class="good">✓ Apply</span></div>
-      <div class="tr"><span class="lb">Aug → Oct</span><span class="good">✓ Apply</span></div>
-      <div class="tr"><span class="lb">Jun → Jul</span><span class="bad">✗ Everyone on vacation</span></div>
-      <div class="tr"><span class="lb">Christmas period</span><span class="bad">✗ Holiday freeze</span></div>
-    </div>
-  </div>
-  <div class="tgrid">
-    <div class="tc"><h3>Best time of day (CET)</h3>
-      <div class="tr"><span class="lb">🇳🇱 Netherlands</span><span class="good">7:30 AM – 10:00 AM</span></div>
-      <div class="tr"><span class="lb">🇸🇪 Sweden</span><span class="good">7:00 AM – 9:30 AM</span></div>
-      <p style="font-size:12px;color:var(--muted);margin-top:9px;line-height:1.6;">Recruiters check fresh applications first. ATS ranks recent submissions higher.</p>
-      <div class="ist"><p>🇮🇳 From India (IST)</p><span>🇳🇱 Netherlands → 11:00 AM – 1:30 PM IST</span><br/><span>🇸🇪 Sweden → 10:30 AM – 1:00 PM IST</span></div>
-    </div>
-    <div class="tc"><h3>Best days to apply</h3>
-      <div class="tr"><span class="lb">1st choice</span><span class="good">Tuesday</span></div>
-      <div class="tr"><span class="lb">2nd choice</span><span class="good">Wednesday</span></div>
-      <div class="tr"><span class="lb">3rd choice</span><span class="good">Thursday</span></div>
-      <div class="tr"><span class="lb">Avoid</span><span class="bad">Friday evening, weekends</span></div>
-    </div>
-  </div>
-</div>
+    const params = new URLSearchParams({
+      app_id: ADZUNA_ID,
+      app_key: ADZUNA_KEY,
+      results_per_page: 10,
+      what: query || 'Java Backend Engineer',
+      content_type: 'application/json',
+      ...(salary_min ? { salary_min } : {}),
+      ...(date_posted ? { days_old: date_posted } : {})
+    });
 
-<!-- COMPANIES -->
-<div class="panel" id="panel-companies">
-  <div class="ph"><h1>Top Companies to Target</h1><p>Click any company to search real jobs and auto-fill Cover Letter panel</p></div>
-  <div class="banner green" style="margin-bottom:16px;"><span>🎯</span><span>Target Java 17 · Spring Boot · Kafka · Kubernetes · GCP/AWS. Always mention "open to relocation" and "require visa sponsorship".</span></div>
-  <div class="stitle">🇳🇱 Netherlands — Stronger market right now</div>
-  <div class="cgrid" style="margin-bottom:16px;">
-    <div class="cc" onclick="searchCompany('Booking.com','Netherlands')"><h4>Booking.com</h4><p>Amsterdam · Travel tech · Java-heavy</p></div>
-    <div class="cc" onclick="searchCompany('Adyen','Netherlands')"><h4>Adyen</h4><p>Amsterdam · Fintech · Visa-friendly</p></div>
-    <div class="cc" onclick="searchCompany('ASML','Netherlands')"><h4>ASML</h4><p>Eindhoven · Deep tech · Top visa sponsor</p></div>
-    <div class="cc" onclick="searchCompany('ING','Netherlands')"><h4>ING</h4><p>Amsterdam · Banking · Cloud transformation</p></div>
-    <div class="cc" onclick="searchCompany('Picnic','Netherlands')"><h4>Picnic</h4><p>Amsterdam · Grocery delivery · Fast-growing</p></div>
-    <div class="cc" onclick="searchCompany('TomTom','Netherlands')"><h4>TomTom</h4><p>Amsterdam · Maps · Microservices</p></div>
-  </div>
-  <div class="stitle">🇸🇪 Sweden — Target fintech &amp; startups</div>
-  <div class="cgrid">
-    <div class="cc" onclick="searchCompany('Spotify','Sweden')"><h4>Spotify</h4><p>Stockholm · Microservices at scale</p></div>
-    <div class="cc" onclick="searchCompany('Klarna','Sweden')"><h4>Klarna</h4><p>Stockholm · BNPL fintech · Java backend</p></div>
-    <div class="cc" onclick="searchCompany('Ericsson','Sweden')"><h4>Ericsson</h4><p>Stockholm · Large enterprise</p></div>
-    <div class="cc" onclick="searchCompany('Volvo','Sweden')"><h4>Volvo Group</h4><p>Gothenburg · Connected vehicles</p></div>
-    <div class="cc" onclick="searchCompany('King','Sweden')"><h4>King</h4><p>Stockholm · Gaming · Scala + Java</p></div>
-    <div class="cc" onclick="searchCompany('Einride','Sweden')"><h4>Einride</h4><p>Stockholm · EV freight · Cloud-native</p></div>
-  </div>
-</div>
+    const url = `https://api.adzuna.com/v1/api/jobs/${cc}/search/${pageNum}?${params}`;
 
-</main>
-</div>
-<script>
-var FLAG={Netherlands:'🇳🇱',Sweden:'🇸🇪',Finland:'🇫🇮'};
-var ALL_JOBS=[];
-var TOTAL_JOBS=0;
-var CUR_PAGE=1;
-var PER_PAGE=10;
-var TOTAL_PAGES=1;
-var LAST_QUERY={};
-
-function showPanel(n){
-  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});
-  document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('active')});
-  document.getElementById('panel-'+n).classList.add('active');
-  document.getElementById('nav-'+n).classList.add('active');
-}
-function toggleC(b){b.classList.toggle('active')}
-function getCtrys(){return Array.from(document.querySelectorAll('.cb.active')).map(function(b){return b.dataset.c})}
-
-async function callAPI(body){
-  var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-  var d=await r.json();
-  if(d.error) throw new Error(d.error);
-  return d;
-}
-
-async function runSearch(page){
-  var title=document.getElementById('s-title').value.trim()||'Java Backend Engineer';
-  var loc=document.getElementById('s-loc').value.trim();
-  var date=document.getElementById('s-date').value;
-  var sal=document.getElementById('s-sal').value;
-  var sort=document.getElementById('s-sort').value;
-  var countries=getCtrys();
-
-  if(!countries.length){
-    document.getElementById('resultsArea').innerHTML='<div class="err">Select at least one country.</div>';
-    return;
+    try {
+      const r = await fetch(url);
+      const data = await r.json();
+      if (!r.ok) return res.status(r.status).json({ error: 'Adzuna error', detail: data });
+      return res.status(200).json({ jobs: data.results || [], total: data.count || 0 });
+    } catch (e) {
+      return res.status(500).json({ error: 'Adzuna fetch failed', detail: e.message });
+    }
   }
 
-  // Store query for pagination
-  LAST_QUERY={title,loc,date,sal,sort,countries};
-  CUR_PAGE=page||1;
+  // ── Groq AI (cover letter / resume / linkedin) ─────────────────
+  if (type === 'ai') {
+    if (!process.env.GROQ_API_KEY) {
+      return res.status(500).json({ error: 'GROQ_API_KEY not set' });
+    }
+    if (!prompt) return res.status(400).json({ error: 'No prompt provided' });
 
-  var btn=document.getElementById('searchBtn');
-  btn.disabled=true;
-  btn.innerHTML='<div class="spin" style="border-top-color:#fff"></div> Searching…';
-  document.getElementById('resultsArea').innerHTML='<div class="load"><div class="spin"></div>Fetching real jobs from Adzuna for '+countries.join(', ')+'…</div>';
-  document.getElementById('pagination').innerHTML='';
-
-  try{
-    // Search each country and combine
-    var allJobs=[];
-    var totalCount=0;
-
-    for(var i=0;i<countries.length;i++){
-      var country=countries[i];
-      var query=title+(loc?' '+loc:'');
-      var data=await callAPI({
-        type:'jobs',
-        query:query,
-        country:country,
-        page:CUR_PAGE,
-        ...(date?{date_posted:date}:{}),
-        ...(sal?{salary_min:sal}:{})
+    try {
+      const gr = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: 'llama-3.3-70b-versatile',
+          max_tokens: 8000,
+          temperature: 0.7,
+          messages: [{ role: 'user', content: prompt }]
+        })
       });
-      if(data.jobs && data.jobs.length){
-        // Tag each job with country
-        data.jobs.forEach(function(j){j._country=country});
-        allJobs=allJobs.concat(data.jobs);
-        totalCount+=data.total||data.jobs.length;
-      }
+      const gd = await gr.json();
+      if (!gr.ok) return res.status(gr.status).json({ error: 'Groq error', detail: gd });
+      const text = gd.choices?.[0]?.message?.content || '';
+      return res.status(200).json({ content: [{ type: 'text', text }] });
+    } catch (e) {
+      return res.status(500).json({ error: 'Groq error', detail: e.message });
     }
-
-    // Sort
-    if(sort==='date'){
-      allJobs.sort(function(a,b){return new Date(b.created)-new Date(a.created)});
-    } else if(sort==='salary'){
-      allJobs.sort(function(a,b){return (b.salary_max||b.salary_min||0)-(a.salary_max||a.salary_min||0)});
-    }
-
-    ALL_JOBS=allJobs;
-    TOTAL_JOBS=totalCount;
-    TOTAL_PAGES=Math.ceil(allJobs.length/PER_PAGE);
-
-    renderJobs();
-
-  }catch(e){
-    document.getElementById('resultsArea').innerHTML='<div class="err">Error fetching jobs: '+e.message+'</div>';
   }
 
-  btn.disabled=false;
-  btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg> Search Real Jobs';
+  return res.status(400).json({ error: 'Invalid request type. Use "jobs" or "ai".' });
 }
-
-function renderJobs(){
-  var start=(CUR_PAGE-1)*PER_PAGE;
-  var end=Math.min(start+PER_PAGE,ALL_JOBS.length);
-  var pageJobs=ALL_JOBS.slice(start,end);
-
-  if(!pageJobs.length){
-    document.getElementById('resultsArea').innerHTML='<div class="no-results">No jobs found. Try different keywords or remove salary filter.</div>';
-    document.getElementById('pagination').innerHTML='';
-    return;
-  }
-
-  var html='<div class="stats">';
-  html+='<span class="sp">'+ALL_JOBS.length+' jobs found</span>';
-  html+='<span class="sp">Page '+CUR_PAGE+' of '+TOTAL_PAGES+'</span>';
-  // Count by country
-  var byC={};
-  ALL_JOBS.forEach(function(j){var c=j._country||'?';byC[c]=(byC[c]||0)+1});
-  Object.keys(byC).forEach(function(c){html+='<span class="sp">'+(FLAG[c]||'')+' '+c+': '+byC[c]+'</span>'});
-  html+='</div>';
-
-  pageJobs.forEach(function(job,i){
-    var idx=start+i;
-    var title=job.title||'Untitled';
-    var company=(job.company&&job.company.display_name)||'Unknown Company';
-    var country=job._country||'';
-    var location=(job.location&&job.location.display_name)||country;
-    var desc=(job.description||'').replace(/<[^>]+>/g,'').substring(0,300)+'…';
-    var fullDesc=(job.description||'').replace(/<[^>]+>/g,'');
-    var salMin=job.salary_min?Math.round(job.salary_min):null;
-    var salMax=job.salary_max?Math.round(job.salary_max):null;
-    var salStr=salMin&&salMax?'€'+salMin.toLocaleString()+' – €'+salMax.toLocaleString():salMin?'€'+salMin.toLocaleString()+'+':salMax?'Up to €'+salMax.toLocaleString():'Salary not listed';
-    var applyURL=job.redirect_url||job.url||'#';
-    var posted=job.created?new Date(job.created).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'Recently';
-    var category=(job.category&&job.category.label)||'Tech';
-
-    html+='<div class="jc">';
-    html+='<div class="jt"><div class="jtitle">'+title+'</div>';
-    html+='<div class="br"><span class="badge country">'+(FLAG[country]||'')+' '+country+'</span></div></div>';
-    html+='<div class="jco">🏢 '+company+'</div>';
-    html+='<div class="jm">';
-    html+='<span class="mi">📍 '+location+'</span>';
-    html+='<span class="mi">· 💰 '+salStr+'</span>';
-    html+='<span class="mi">· 📅 '+posted+'</span>';
-    html+='<span class="mi">· 🏷 '+category+'</span>';
-    html+='</div>';
-    html+='<div class="jd" id="desc-'+idx+'">'+desc+'</div>';
-    html+='<button onclick="toggleDesc('+idx+','+JSON.stringify(desc).replace(/"/g,"'").replace(/'/g,"'")+','+JSON.stringify(fullDesc).replace(/"/g,"'").replace(/'/g,"'")+',this)" style="font-size:11px;color:var(--blue);background:none;border:none;cursor:pointer;padding:0;margin-bottom:8px;font-family:var(--f)">Show full description ↓</button>';
-    html+='<div class="jf">';
-    html+='<button class="btn btn-blue btn-sm" data-idx="'+idx+'" onclick="coverFromJob(this)">✍ Cover Letter</button>';
-    html+='<button class="btn btn-outline btn-sm" data-idx="'+idx+'" onclick="resumeFromJob(this)">📄 Resume Bullets</button>';
-    html+='<a class="btn btn-green btn-sm" href="'+applyURL+'" target="_blank" rel="noopener">🔗 Apply Now</a>';
-    html+='</div></div>';
-  });
-
-  document.getElementById('resultsArea').innerHTML=html;
-  renderPagination();
-  window.scrollTo(0,0);
-}
-
-function toggleDesc(idx,short,full,btn){
-  var el=document.getElementById('desc-'+idx);
-  if(el.classList.contains('expanded')){
-    el.textContent=short;
-    el.classList.remove('expanded');
-    btn.textContent='Show full description ↓';
-  } else {
-    el.textContent=full;
-    el.classList.add('expanded');
-    btn.textContent='Show less ↑';
-  }
-}
-
-function renderPagination(){
-  if(TOTAL_PAGES<=1){document.getElementById('pagination').innerHTML='';return}
-  var html='<div class="pag">';
-  html+='<button class="pb" onclick="goPage('+(CUR_PAGE-1)+')" '+(CUR_PAGE===1?'disabled':'')+'>← Prev</button>';
-  var start=Math.max(1,CUR_PAGE-2);
-  var end=Math.min(TOTAL_PAGES,CUR_PAGE+2);
-  if(start>1) html+='<button class="pb" onclick="goPage(1)">1</button>'+(start>2?'<span style="color:var(--muted);padding:0 4px">…</span>':'');
-  for(var i=start;i<=end;i++){html+='<button class="pb'+(i===CUR_PAGE?' active':'')+'" onclick="goPage('+i+')">'+i+'</button>'}
-  if(end<TOTAL_PAGES) html+=(end<TOTAL_PAGES-1?'<span style="color:var(--muted);padding:0 4px">…</span>':'')+'<button class="pb" onclick="goPage('+TOTAL_PAGES+')">'+TOTAL_PAGES+'</button>';
-  html+='<button class="pb" onclick="goPage('+(CUR_PAGE+1)+')" '+(CUR_PAGE===TOTAL_PAGES?'disabled':'')+'>Next →</button>';
-  html+='</div>';
-  document.getElementById('pagination').innerHTML=html;
-}
-
-function goPage(p){
-  if(p<1||p>TOTAL_PAGES) return;
-  CUR_PAGE=p;
-  renderJobs();
-}
-
-function coverFromJob(btn){
-  var idx=parseInt(btn.dataset.idx);
-  var job=ALL_JOBS[idx];
-  if(!job) return;
-  document.getElementById('a-title').value=job.title||'';
-  document.getElementById('a-company').value=(job.company&&job.company.display_name)||'';
-  document.getElementById('a-country').value=job._country||'Netherlands';
-  document.getElementById('a-jd').value=(job.description||'').replace(/<[^>]+>/g,'');
-  document.getElementById('applyOut').innerHTML='';
-  showPanel('apply');
-  window.scrollTo(0,0);
-}
-
-function resumeFromJob(btn){
-  coverFromJob(btn);
-  setTimeout(genRB,400);
-}
-
-function searchCompany(company,country){
-  document.getElementById('s-title').value='Java Backend Engineer '+company;
-  // Set country
-  document.querySelectorAll('.cb').forEach(function(b){
-    if(b.dataset.c===country) b.classList.add('active');
-    else b.classList.remove('active');
-  });
-  showPanel('search');
-  runSearch(1);
-}
-
-function getCtx(){
-  return{
-    title:document.getElementById('a-title').value.trim(),
-    company:document.getElementById('a-company').value.trim(),
-    country:document.getElementById('a-country').value,
-    name:document.getElementById('a-name').value.trim()||'Your Name',
-    jd:document.getElementById('a-jd').value.trim(),
-    resume:document.getElementById('a-resume').value.trim()
-  }
-}
-function setOut(html){document.getElementById('applyOut').innerHTML=html}
-
-function copyOut(id){
-  var el=document.getElementById(id);
-  navigator.clipboard.writeText(el.innerText||'').then(function(){
-    var b=document.querySelector('[data-copy="'+id+'"]');
-    if(b){b.textContent='Copied!';setTimeout(function(){b.textContent='📋 Copy'},2000)}
-  });
-}
-
-async function genCL(){
-  var c=getCtx();
-  if(!c.title||!c.company){setOut('<div class="err">Please fill in Job Title and Company.</div>');return}
-  var btn=document.getElementById('btn-cl');
-  btn.disabled=true;btn.textContent='Generating…';
-  setOut('<div class="load"><div class="spin"></div>Writing your cover letter…</div>');
-  var p='Write a professional cover letter.\nApplicant: '+c.name+'\nRole: '+c.title+' at '+c.company+', '+c.country+'\nProfile: Senior Java Backend Engineer, 6+ years, Java 17, Spring Boot, Kubernetes, Kafka, GCP/AWS, based in India, seeking relocation with visa sponsorship\n'+(c.jd?'Job Description:\n'+c.jd+'\n':'')+(c.resume?'Resume:\n'+c.resume+'\n':'')+'\nWrite 4 paragraphs. Strong opening hook specific to '+c.company+'. Highlight Java/Cloud experience matching the JD. Mention relocation and visa sponsorship naturally. Clear call to action. Address "Dear Hiring Manager," sign as "'+c.name+'". Plain text only, no markdown.';
-  try{
-    var d=await callAPI({type:'ai',prompt:p});
-    var text=d.content[0].text;
-    setOut('<div class="card"><div class="crow"><h3>✍ Cover Letter — '+c.title+' at '+c.company+'</h3><button class="btn btn-outline btn-sm" data-copy="cl-out" onclick="copyOut(\'cl-out\')">📋 Copy</button></div><div class="out-box" id="cl-out">'+text+'</div></div><div class="banner green"><span>💡</span><span>Paste into the company\'s application portal. Personalise the opening if you know the hiring manager\'s name.</span></div>');
-  }catch(e){setOut('<div class="err">Error: '+e.message+'</div>')}
-  btn.disabled=false;btn.innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Cover Letter';
-}
-
-async function genRB(){
-  var c=getCtx();
-  if(!c.title||!c.company){setOut('<div class="err">Please fill in Job Title and Company.</div>');return}
-  var btn=document.getElementById('btn-rb');
-  btn.disabled=true;btn.textContent='Generating…';
-  setOut('<div class="load"><div class="spin"></div>Tailoring your resume bullets…</div>');
-  var p='Tailor resume content for this job.\nRole: '+c.title+' at '+c.company+', '+c.country+'\nCandidate: Senior Java Backend Engineer, 6+ years, Java 17, Spring Boot 3, Kubernetes, Kafka, GCP/AWS, Microservices, Docker, CI/CD\n'+(c.jd?'Job Description:\n'+c.jd+'\n':'')+(c.resume?'Current Resume:\n'+c.resume+'\n':'')+'\nGenerate:\n1. PROFESSIONAL SUMMARY (3 lines) tailored to this role\n2. KEY SKILLS — 10 skills most relevant to this JD, comma-separated\n3. EXPERIENCE BULLETS — 6 strong quantified bullets with action verbs and metrics\n4. ATS KEYWORDS — 8 keywords from the JD to include verbatim in resume\nPlain text, clear section headers, no markdown.';
-  try{
-    var d=await callAPI({type:'ai',prompt:p});
-    var text=d.content[0].text;
-    setOut('<div class="card"><div class="crow"><h3>📄 Resume Bullets — '+c.title+' at '+c.company+'</h3><button class="btn btn-outline btn-sm" data-copy="rb-out" onclick="copyOut(\'rb-out\')">📋 Copy</button></div><div class="out-box" id="rb-out">'+text+'</div></div><div class="banner green"><span>💡</span><span>Add the ATS keywords verbatim to your resume to pass automated screening.</span></div>');
-  }catch(e){setOut('<div class="err">Error: '+e.message+'</div>')}
-  btn.disabled=false;btn.innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/></svg> Resume Bullets';
-}
-
-async function genLI(){
-  var c=getCtx();
-  if(!c.title||!c.company){setOut('<div class="err">Please fill in Job Title and Company.</div>');return}
-  var btn=document.getElementById('btn-li');
-  btn.disabled=true;btn.textContent='Generating…';
-  setOut('<div class="load"><div class="spin"></div>Writing LinkedIn messages…</div>');
-  var p='Write LinkedIn outreach messages.\nFrom: '+c.name+' — Senior Java Backend Engineer, 6+ years, Java 17, Spring Boot, Kubernetes, Kafka, GCP/AWS, based in India, relocating to '+c.country+' with visa sponsorship\nApplying to: '+c.title+' at '+c.company+'\n\nWrite 3 versions:\n1. CONNECTION REQUEST NOTE (under 300 chars)\n2. FOLLOW-UP AFTER APPLYING (3-4 sentences)\n3. COLD OUTREACH TO HIRING MANAGER (4-5 sentences)\n\nBe specific to '+c.company+'. Mention Java/Spring Boot. Mention relocation and visa sponsorship naturally. Plain text only.';
-  try{
-    var d=await callAPI({type:'ai',prompt:p});
-    var text=d.content[0].text;
-    setOut('<div class="card"><div class="crow"><h3>💬 LinkedIn Messages — '+c.company+'</h3><button class="btn btn-outline btn-sm" data-copy="li-out" onclick="copyOut(\'li-out\')">📋 Copy</button></div><div class="out-box" id="li-out">'+text+'</div></div><div class="banner green"><span>💡</span><span>Send connection request first. Follow up 24–48 hours after applying.</span></div>');
-  }catch(e){setOut('<div class="err">Error: '+e.message+'</div>')}
-  btn.disabled=false;btn.innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> LinkedIn Msg';
-}
-</script>
-</body>
-</html>
