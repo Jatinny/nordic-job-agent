@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nordic Job Agent — Java Backend Engineer</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #f5f4f0;
+    --surface: #ffffff;
+    --surface2: #f0ede6;
+    --border: #e2ddd6;
+    --text: #1a1916;
+    --muted: #7a766e;
+    --blue: #1a4fd6;
+    --blue-light: #e8effe;
+    --blue-mid: #3d6be8;
+    --green: #1a6b45;
+    --green-light: #e6f4ed;
+    --amber: #92520a;
+    --amber-light: #fef3e2;
+    --red: #b91c1c;
+    --red-light: #fef2f2;
+    --radius: 10px;
+    --radius-lg: 14px;
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* Layout */
+  .app { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+  .sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 28px 20px; display: flex; flex-direction: column; gap: 6px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .main { padding: 32px 36px; overflow-y: auto; }
+
+  /* Sidebar */
+  .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+  .logo-icon { width: 36px; height: 36px; background: var(--blue); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; flex-shrink: 0; }
+  .logo-text { font-size: 14px; font-weight: 600; line-height: 1.3; color: var(--text); }
+  .logo-sub { font-size: 11px; color: var(--muted); font-weight: 400; }
+  .nav-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 16px 0 6px 8px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: var(--radius); font-size: 13px; color: var(--muted); cursor: pointer; transition: all 0.15s; border: none; background: none; width: 100%; text-align: left; }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: var(--blue-light); color: var(--blue); font-weight: 500; }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+  .profile-box { margin-top: auto; background: var(--surface2); border-radius: var(--radius); padding: 12px 14px; }
+  .profile-box p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .profile-box strong { color: var(--text); font-weight: 500; }
+  .tech-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+  .tech-tag { font-size: 10px; font-family: var(--mono); background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; color: var(--muted); }
+
+  /* Panels */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* Page header */
+  .page-header { margin-bottom: 28px; }
+  .page-header h1 { font-size: 22px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .page-header p { font-size: 14px; color: var(--muted); }
+
+  /* Search form */
+  .search-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px; }
+  .form-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .form-grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group label { font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  input, select { font-family: var(--font); font-size: 13px; padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); color: var(--text); outline: none; transition: border-color 0.15s; }
+  input:focus, select:focus { border-color: var(--blue-mid); }
+  .country-row { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .ctry-btn { display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface2); font-size: 13px; color: var(--muted); cursor: pointer; transition: all 0.15s; font-family: var(--font); }
+  .ctry-btn.active { background: var(--blue-light); border-color: var(--blue-mid); color: var(--blue); font-weight: 500; }
+  .search-btn { width: 100%; padding: 11px; font-size: 14px; font-weight: 500; border-radius: var(--radius); border: none; background: var(--blue); color: white; cursor: pointer; transition: background 0.15s; font-family: var(--font); display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .search-btn:hover { background: #1540b0; }
+  .search-btn:disabled { background: var(--surface2); color: var(--muted); cursor: not-allowed; }
+
+  /* Info banner */
+  .banner { border-radius: var(--radius); padding: 10px 14px; font-size: 13px; display: flex; align-items: flex-start; gap: 8px; margin-bottom: 16px; }
+  .banner.green { background: var(--green-light); color: var(--green); }
+  .banner.amber { background: var(--amber-light); color: var(--amber); }
+
+  /* Results */
+  .stats-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .stat-pill { font-size: 12px; padding: 4px 10px; border-radius: 20px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); }
+  .stat-pill.visa { background: var(--green-light); color: var(--green); border-color: #b7deca; }
+  .job-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 12px; transition: box-shadow 0.15s; }
+  .job-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+  .job-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 6px; }
+  .job-title { font-size: 15px; font-weight: 600; color: var(--text); }
+  .badge-row { display: flex; gap: 5px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
+  .badge { font-size: 11px; padding: 2px 9px; border-radius: 20px; font-weight: 500; }
+  .badge.country { background: var(--blue-light); color: var(--blue); }
+  .badge.visa { background: var(--green-light); color: var(--green); }
+  .badge.english { background: var(--amber-light); color: var(--amber); }
+  .job-company { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .job-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+  .meta-item { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 4px; }
+  .job-desc { font-size: 13px; color: var(--muted); line-height: 1.65; margin-bottom: 10px; }
+  .req-row { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 12px; }
+  .req-tag { font-size: 11px; font-family: var(--mono); padding: 3px 8px; border-radius: 4px; background: var(--bg); border: 1px solid var(--border); color: var(--muted); }
+  .job-footer { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .btn-primary { padding: 7px 16px; font-size: 13px; border-radius: var(--radius); border: none; background: var(--blue); color: white; cursor: pointer; font-family: var(--font); font-weight: 500; }
+  .btn-secondary { padding: 7px 16px; font-size: 13px; border-radius: var(--radius); border: 1px solid var(--border); background: transparent; color: var(--text); cursor: pointer; font-family: var(--font); }
+  .portal-label { font-size: 11px; color: var(--muted); margin-left: auto; font-family: var(--mono); }
+
+  /* Loading */
+  .loading { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 14px; padding: 20px 0; }
+  .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.75s linear infinite; flex-shrink: 0; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error { background: var(--red-light); border: 1px solid #fca5a5; border-radius: var(--radius); padding: 12px 16px; font-size: 13px; color: var(--red); }
+
+  /* Portals tab */
+  .section-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .portal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .portal-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; }
+  .portal-name { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+  .portal-desc { font-size: 12px; color: var(--muted); margin-bottom: 6px; line-height: 1.5; }
+
+  /* Timing tab */
+  .timing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .timing-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px 18px; }
+  .timing-card h3 { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 10px; }
+  .timing-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .timing-row:last-child { border-bottom: none; }
+  .timing-row .label { color: var(--muted); }
+  .good { color: var(--green); font-weight: 500; }
+  .bad { color: var(--red); }
+  .ist-highlight { background: var(--blue-light); border-radius: var(--radius); padding: 12px 14px; margin-top: 12px; }
+  .ist-highlight p { font-size: 13px; color: var(--blue); font-weight: 500; margin-bottom: 4px; }
+  .ist-highlight span { font-size: 12px; color: var(--blue-mid); }
+
+  /* Companies tab */
+  .company-section { margin-bottom: 24px; }
+  .company-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .company-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; cursor: pointer; transition: all 0.15s; }
+  .company-card:hover { border-color: var(--blue-mid); background: var(--blue-light); }
+  .company-card h4 { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+  .company-card p { font-size: 12px; color: var(--muted); }
+  .company-card .arrow { font-size: 11px; color: var(--blue); margin-top: 6px; display: none; }
+  .company-card:hover .arrow { display: block; }
+
+  /* Strategy modal area */
+  .strategy-box { background: var(--blue-light); border: 1px solid #b8cef5; border-radius: var(--radius-lg); padding: 16px 20px; margin-top: 16px; font-size: 13px; color: var(--text); line-height: 1.7; white-space: pre-wrap; display: none; }
+  .strategy-box.visible { display: block; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { position: static; height: auto; flex-direction: row; flex-wrap: wrap; padding: 16px; }
+    .main { padding: 20px 16px; }
+    .form-grid2, .form-grid3, .portal-grid, .timing-grid, .company-grid { grid-template-columns: 1fr; }
+    .logo { margin-bottom: 8px; }
+    .profile-box { display: none; }
+    .nav-label { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      <div>
+        <div class="logo-text">Nordic Job Agent</div>
+        <div class="logo-sub">NL · SE · FI</div>
+      </div>
+    </div>
+
+    <span class="nav-label">Navigation</span>
+    <button class="nav-item active" onclick="showPanel('search', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      Search Jobs
+    </button>
+    <button class="nav-item" onclick="showPanel('portals', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      Job Portals
+    </button>
+    <button class="nav-item" onclick="showPanel('timing', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Best Timing
+    </button>
+    <button class="nav-item" onclick="showPanel('companies', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      Top Companies
+    </button>
+    <button class="nav-item" onclick="showPanel('strategy', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Apply Strategy
+    </button>
+
+    <div class="profile-box">
+      <p><strong>Your profile</strong><br />Senior Java Backend Engineer · 6+ yrs · India → NL/SE</p>
+      <div class="tech-tags">
+        <span class="tech-tag">Java 17</span>
+        <span class="tech-tag">Spring Boot</span>
+        <span class="tech-tag">Kubernetes</span>
+        <span class="tech-tag">Kafka</span>
+        <span class="tech-tag">GCP</span>
+        <span class="tech-tag">AWS</span>
+      </div>
+      
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main">
+
+    <!-- SEARCH PANEL -->
+    <div class="panel active" id="panel-search">
+      <div class="page-header">
+        <h1>Find Visa-Sponsored Jobs</h1>
+        <p>AI-powered search across NL & SE portals — English roles, relocation-friendly companies</p>
+      </div>
+
+      <div class="search-card">
+        <div class="form-grid2">
+          <div class="form-group">
+            <label>Job title / keywords</label>
+            <input type="text" id="jobTitle" value="Java Backend Engineer" placeholder="e.g. Java Backend Engineer" />
+          </div>
+          <div class="form-group">
+            <label>City or Remote</label>
+            <input type="text" id="location" placeholder="Amsterdam, Stockholm, Remote…" />
+          </div>
+        </div>
+        <div class="form-grid3">
+          <div class="form-group">
+            <label>Experience</label>
+            <select id="expLevel">
+              <option value="senior" selected>Senior (6+ yrs)</option>
+              <option value="mid">Mid level</option>
+              <option value="lead">Lead / Principal</option>
+              <option value="entry">Entry level</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Job type</label>
+            <select id="jobType">
+              <option value="full-time" selected>Full-time</option>
+              <option value="contract">Contract</option>
+              <option value="remote">Remote</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Industry</label>
+            <select id="industry">
+              <option value="fintech" selected>Fintech</option>
+              <option value="insurtech">Insurance Tech</option>
+              <option value="logistics">Logistics / SaaS</option>
+              <option value="tech">Tech / IT</option>
+            </select>
+          </div>
+        </div>
+
+        <p style="font-size:12px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Countries</p>
+        <div class="country-row">
+          <button class="ctry-btn active" data-country="Netherlands" onclick="toggleCountry(this)">🇳🇱 Netherlands</button>
+          <button class="ctry-btn active" data-country="Sweden" onclick="toggleCountry(this)">🇸🇪 Sweden</button>
+          <button class="ctry-btn" data-country="Finland" onclick="toggleCountry(this)">🇫🇮 Finland</button>
+        </div>
+
+        <div class="banner green">
+          <span>💡</span>
+          <span>Netherlands has stronger demand for Java/Cloud engineers right now. Higher chance of visa sponsorship and English-only roles than Sweden.</span>
+        </div>
+
+        <button class="search-btn" id="searchBtn" onclick="runSearch()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          Search Visa-Sponsored Roles
+        </button>
+      </div>
+
+      <div id="resultsArea"></div>
+    </div>
+
+    <!-- PORTALS PANEL -->
+    <div class="panel" id="panel-portals">
+      <div class="page-header">
+        <h1>Job Portals</h1>
+        <p>Best portals for Java engineers relocating from India — curated by type</p>
+      </div>
+
+      <div class="section-title">🇳🇱 Netherlands</div>
+      <div class="portal-grid">
+        <div class="portal-card"><div class="portal-name">LinkedIn Jobs</div><div class="portal-desc">Best for visa-sponsored roles, recruiter outreach & referrals</div><span class="badge visa">Visa sponsorship</span></div>
+        <div class="portal-card"><div class="portal-name">Indeed NL</div><div class="portal-desc">High volume — startups and consulting companies</div><span class="badge country">High volume</span></div>
+        <div class="portal-card"><div class="portal-name">IamExpat Jobs</div><div class="portal-desc">Excellent for English-speaking expat roles</div><span class="badge english">Expat-friendly</span></div>
+        <div class="portal-card"><div class="portal-name">TechMeAbroad</div><div class="portal-desc">Focused on relocation + visa sponsorship roles</div><span class="badge visa">Visa sponsorship</span></div>
+        <div class="portal-card"><div class="portal-name">Undutchables</div><div class="portal-desc">Specializes in international candidates</div><span class="badge english">Expat-friendly</span></div>
+        <div class="portal-card"><div class="portal-name">Together Abroad</div><div class="portal-desc">Good for tech + multilingual opportunities</div><span class="badge english">Expat-friendly</span></div>
+        <div class="portal-card"><div class="portal-name">Nationale Vacaturebank</div><div class="portal-desc">One of the biggest Dutch local job portals</div><span class="badge country">Local</span></div>
+        <div class="portal-card"><div class="portal-name">Glassdoor NL</div><div class="portal-desc">Salary benchmarks + interview reviews</div><span class="badge country">Insights</span></div>
+      </div>
+
+      <div class="section-title">🇸🇪 Sweden</div>
+      <div class="portal-grid">
+        <div class="portal-card"><div class="portal-name">LinkedIn Jobs</div><div class="portal-desc">Best for visa-sponsored roles & recruiter outreach</div><span class="badge visa">Visa sponsorship</span></div>
+        <div class="portal-card"><div class="portal-name">The Hub</div><div class="portal-desc">Best for Nordic startup ecosystem</div><span class="badge english">Startups</span></div>
+        <div class="portal-card"><div class="portal-name">SverigeDev</div><div class="portal-desc">Massive Swedish developer jobs aggregator</div><span class="badge country">Dev-focused</span></div>
+        <div class="portal-card"><div class="portal-name">Academic Work</div><div class="portal-desc">Great for consultants and engineers</div><span class="badge country">Engineering</span></div>
+        <div class="portal-card"><div class="portal-name">Arbetsförmedlingen</div><div class="portal-desc">Official Swedish government employment portal</div><span class="badge country">Official</span></div>
+        <div class="portal-card"><div class="portal-name">Indeed SE</div><div class="portal-desc">Aggregated Swedish listings</div><span class="badge country">High volume</span></div>
+      </div>
+
+      <div class="banner amber" style="margin-top:8px;">
+        <span>⚠️</span>
+        <span>Sweden's market is slower due to ongoing telecom/enterprise layoffs. Focus on fintech startups (Klarna, Einride) rather than large corporates.</span>
+      </div>
+    </div>
+
+    <!-- TIMING PANEL -->
+    <div class="panel" id="panel-timing">
+      <div class="page-header">
+        <h1>Best Timing to Apply</h1>
+        <p>Timing matters more than most people think — early applicants get more ATS visibility</p>
+      </div>
+
+      <div class="timing-grid">
+        <div class="timing-card">
+          <h3>🇳🇱 Netherlands — Best months</h3>
+          <div class="timing-row"><span class="label">Jan → Apr</span><span class="good">✓ Apply</span></div>
+          <div class="timing-row"><span class="label">Sep → Nov</span><span class="good">✓ Apply</span></div>
+          <div class="timing-row"><span class="label">Mid Jul → Aug</span><span class="bad">✗ Summer holidays</span></div>
+          <div class="timing-row"><span class="label">Late December</span><span class="bad">✗ Holiday freeze</span></div>
+        </div>
+        <div class="timing-card">
+          <h3>🇸🇪 Sweden — Best months</h3>
+          <div class="timing-row"><span class="label">Jan → Mar</span><span class="good">✓ Apply</span></div>
+          <div class="timing-row"><span class="label">Aug → Oct</span><span class="good">✓ Apply</span></div>
+          <div class="timing-row"><span class="label">Jun → Jul</span><span class="bad">✗ Everyone on vacation</span></div>
+          <div class="timing-row"><span class="label">Christmas period</span><span class="bad">✗ Holiday freeze</span></div>
+        </div>
+      </div>
+
+      <div class="timing-grid">
+        <div class="timing-card">
+          <h3>Best time of day (CET)</h3>
+          <div class="timing-row"><span class="label">🇳🇱 Netherlands</span><span class="good">7:30 AM – 10:00 AM</span></div>
+          <div class="timing-row"><span class="label">🇸🇪 Sweden</span><span class="good">7:00 AM – 9:30 AM</span></div>
+          <p style="font-size:12px;color:var(--muted);margin-top:10px;line-height:1.6;">Recruiters check fresh applications first thing. ATS systems often rank recent submissions higher in their dashboards.</p>
+          <div class="ist-highlight">
+            <p>🇮🇳 From India (IST)</p>
+            <span>🇳🇱 Netherlands → 11:00 AM – 1:30 PM IST</span><br/>
+            <span>🇸🇪 Sweden → 10:30 AM – 1:00 PM IST</span>
+          </div>
+        </div>
+        <div class="timing-card">
+          <h3>Best days to apply</h3>
+          <div class="timing-row"><span class="label">1st choice</span><span class="good">Tuesday</span></div>
+          <div class="timing-row"><span class="label">2nd choice</span><span class="good">Wednesday</span></div>
+          <div class="timing-row"><span class="label">3rd choice</span><span class="good">Thursday</span></div>
+          <div class="timing-row"><span class="label">Avoid</span><span class="bad">Friday evening, weekends</span></div>
+          <p style="font-size:12px;color:var(--muted);margin-top:10px;line-height:1.6;">Tuesday–Thursday mornings in CET = peak recruiter activity. Apply, then immediately send a LinkedIn message to the hiring manager or recruiter.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPANIES PANEL -->
+    <div class="panel" id="panel-companies">
+      <div class="page-header">
+        <h1>Top Companies to Target</h1>
+        <p>Click any company to get a tailored application strategy for your Java/Cloud profile</p>
+      </div>
+
+      <div class="banner green" style="margin-bottom:20px;">
+        <span>🎯</span>
+        <span>Target companies using Java 17 · Spring Boot · Kafka · Kubernetes · GCP/AWS. Always mention "open to relocation" and "require visa sponsorship" in your profile and cover letter.</span>
+      </div>
+
+      <div class="company-section">
+        <div class="section-title">🇳🇱 Netherlands — Stronger market for backend/cloud right now</div>
+        <div class="company-grid">
+          <div class="company-card" onclick="getStrategy('Booking.com','Netherlands','Payments/Travel')">
+            <h4>Booking.com</h4><p>Amsterdam · Travel tech giant · Java-heavy</p><div class="arrow">Get strategy →</div>
+          </div>
+          <div class="company-card" onclick="getStrategy('Adyen','Netherlands','Fintech/Payments')">
+            <h4>Adyen</h4><p>Amsterdam · Global fintech · Visa-friendly</p><div class="arrow">Get strategy →</div>
+          </div>
+          <div class="company-card" onclick="getStrategy('ASML','Netherlands','Semiconductor/Tech')">
+            <h4>ASML</h4><p>Eindhoven · Deep tech · Top visa sponsor</p><div class="arrow">Get strategy →</div>
+          </div>
+          <div class="company-card" onclick="getStrategy('ING','Netherlands','Banking/Fintech')">
+            <h4>ING</h4><p>Amsterdam · Banking · Cloud transformation</p><div class="arrow">Get strategy →</div>
+          </div>
+          <div class="company-card" onclick="getStrategy('Picnic','Netherlands','Logistics/Tech')">
+            <h4>Picnic</h4><p>Amsterdam · Fast-growing grocery delivery</p><div class="arrow">Get strategy →</div>
+          </div>
+          <div class="company-card" onclick="getStrategy('TomTom','Netherlands','Location Tech')">
+            <h4>TomTom</h4><p>Amsterdam · Maps/location · Microservices</p><div class="arrow">Get strategy →</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="company-section">
+        <div class="section-title">🇸🇪 Sweden — Smaller market; target fintech & startups</div>
+        <div class="company-grid">
+          <div class="company-card" onclick="getStrategy('Spotify','Sweden','Music/Tech')">
+            <h4>Spotify</h4><p>Stockholm · Microservices at scale</p><div class="arrow">Get strategy →</div>
+          </div>
+          <div class="company-card" onclick="getStrategy('Klarna','Sweden','Fintech/Payments')">
+            <h4>Klarna</h4><p>Stockholm · BNPL fintech · Java backend</p><div class="arrow">Get strategy →</div>
+          </div>
+          <div class="company-card" onclick="getStrategy('Ericsson','Sweden','Telecom/Tech')">
+            <h4>Ericsson</h4><p>Stockholm · Large enterprise · Slower hiring</p><div class="arrow">Get strategy →</div>
+          </div>
+          <div class="company-card" onclick="getStrategy('Volvo Group','Sweden','Automotive/Tech')">
+            <h4>Volvo Group</h4><p>Gothenburg · Connected vehicles platform</p><div class="arrow">Get strategy →</div>
+          </div>
+          <div class="company-card" onclick="getStrategy('King','Sweden','Gaming/Tech')">
+            <h4>King</h4><p>Stockholm · Candy Crush · Scala + Java</p><div class="arrow">Get strategy →</div>
+          </div>
+          <div class="company-card" onclick="getStrategy('Einride','Sweden','Logistics/EV')">
+            <h4>Einride</h4><p>Stockholm · EV freight startup · Cloud-native</p><div class="arrow">Get strategy →</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="strategyArea"></div>
+    </div>
+
+    <!-- STRATEGY PANEL -->
+    <div class="panel" id="panel-strategy">
+      <div class="page-header">
+        <h1>Application Strategy</h1>
+        <p>Tailored strategy for a Senior Java Backend Engineer relocating from India</p>
+      </div>
+
+      <div class="banner green" style="margin-bottom:20px;">
+        <span>✅</span>
+        <span>For your profile (Java 17 + Spring Boot + Kubernetes + Kafka + GCP/AWS): Apply on LinkedIn → Message recruiter same day → Mention "open to relocation" + "require visa sponsorship".</span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;">
+        <div class="timing-card">
+          <h3>What to highlight</h3>
+          <div class="timing-row"><span class="label">Tech</span><span>Java 17, Spring Boot 3</span></div>
+          <div class="timing-row"><span class="label">Infra</span><span>Kubernetes, Docker, CI/CD</span></div>
+          <div class="timing-row"><span class="label">Messaging</span><span>Kafka, RabbitMQ</span></div>
+          <div class="timing-row"><span class="label">Cloud</span><span>GCP or AWS certified</span></div>
+          <div class="timing-row"><span class="label">Soft</span><span>English fluency, remote-ready</span></div>
+        </div>
+        <div class="timing-card">
+          <h3>Industry focus (NL)</h3>
+          <div class="timing-row"><span class="label">Fintech</span><span class="good">High demand</span></div>
+          <div class="timing-row"><span class="label">Insurance tech</span><span class="good">High demand</span></div>
+          <div class="timing-row"><span class="label">Logistics</span><span class="good">Good demand</span></div>
+          <div class="timing-row"><span class="label">SaaS</span><span class="good">Good demand</span></div>
+          <div class="timing-row"><span class="label">Gaming</span><span style="color:var(--muted);">Moderate</span></div>
+        </div>
+      </div>
+
+      <div class="timing-card" style="margin-bottom:16px;">
+        <h3>Recruiter message template (LinkedIn)</h3>
+        <div style="background:var(--bg);border-radius:8px;padding:14px;margin-top:10px;font-size:13px;line-height:1.8;color:var(--text);font-family:var(--mono);white-space:pre-wrap;">Hi [Name], I just applied for the [Role] position at [Company]. I'm a Senior Java Backend Engineer with 6+ years experience in Spring Boot, Kubernetes, and GCP/AWS, currently based in India and actively looking to relocate to [NL/SE] with visa sponsorship. Would love to connect and learn more about the team. Best, [Your Name]</div>
+      </div>
+
+      <div class="timing-card">
+        <h3>AI strategy generator</h3>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Enter a company name and country to get a custom strategy powered by AI.</p>
+        <div class="form-grid2" style="margin-bottom:10px;">
+          <div class="form-group">
+            <label>Company</label>
+            <input type="text" id="stratCompany" placeholder="e.g. Adyen" />
+          </div>
+          <div class="form-group">
+            <label>Country</label>
+            <select id="stratCountry">
+              <option value="Netherlands">Netherlands</option>
+              <option value="Sweden">Sweden</option>
+              <option value="Finland">Finland</option>
+            </select>
+          </div>
+        </div>
+        <button class="search-btn" onclick="generateStrategy()" id="stratBtn">Generate Strategy</button>
+        <div id="stratResult" style="margin-top:14px;"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// API key is stored securely as environment variable on Vercel
+
+const FLAG = { Netherlands: "🇳🇱", Sweden: "🇸🇪", Finland: "🇫🇮" };
+const PORTALS = {
+  Netherlands: ["LinkedIn NL", "IamExpat Jobs", "TechMeAbroad", "Indeed NL", "Undutchables", "Together Abroad"],
+  Sweden: ["LinkedIn SE", "The Hub", "SverigeDev", "Indeed SE", "Academic Work"],
+  Finland: ["LinkedIn FI", "Duunitori", "Indeed FI", "TE-palvelut"]
+};
+
+function showPanel(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+function toggleCountry(btn) { btn.classList.toggle('active'); }
+function getSelectedCountries() { return [...document.querySelectorAll('.ctry-btn.active')].map(b => b.dataset.country); }
+
+async function callClaude(prompt) {
+  const res = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 1000, messages: [{ role: "user", content: prompt }] })
+  });
+  const data = await res.json();
+  return data.content.map(b => b.text || '').join('');
+}
+
+async function runSearch() {
+  const title = document.getElementById('jobTitle').value.trim() || 'Java Backend Engineer';
+  const location = document.getElementById('location').value.trim();
+  const exp = document.getElementById('expLevel').value;
+  const type = document.getElementById('jobType').value;
+  const industry = document.getElementById('industry').value;
+  const countries = getSelectedCountries();
+  if (countries.length === 0) { document.getElementById('resultsArea').innerHTML = '<div class="error">Select at least one country.</div>'; return; }
+
+  const btn = document.getElementById('searchBtn');
+  btn.disabled = true; btn.textContent = 'Searching...';
+  const ra = document.getElementById('resultsArea');
+  ra.innerHTML = '<div class="loading"><div class="spinner"></div>Searching visa-sponsored roles in ' + countries.join(', ') + '...</div>';
+
+  const portalList = countries.map(c => `${FLAG[c]} ${c}: ${PORTALS[c].join(', ')}`).join('\n');
+  const prompt = `You are a European tech job search agent for senior Indian engineers (Java/Spring Boot/Kubernetes) relocating to Netherlands/Sweden with visa sponsorship.
+
+Role: ${title} | ${location ? 'Location: '+location : 'Any city'} | Experience: ${exp} | Type: ${type} | Industry: ${industry}
+Countries: ${countries.join(', ')}
+Portals: ${portalList}
+
+Return ONLY a JSON array of ${Math.min(countries.length * 3, 9)} realistic job listings. Each object:
+- title, company (real NL/SE companies), country, city, type, salary (EUR for NL/FI, SEK for SE), portal, description (2 sentences mentioning Java/Spring Boot/Kubernetes), requirements (array of 4 tech strings), posted ("X days ago"), visaSponsored (bool, bias true for NL), englishOnly (bool)
+
+Return only raw JSON array, no markdown.`;
+
+  try {
+    const text = await callClaude(prompt);
+    const jobs = JSON.parse(text.replace(/```json|```/g,'').trim());
+    const visaCount = jobs.filter(j => j.visaSponsored).length;
+    const countByC = {};
+    jobs.forEach(j => { countByC[j.country] = (countByC[j.country]||0)+1; });
+
+    let html = '<div class="stats-row">';
+    html += `<span class="stat-pill">${jobs.length} jobs found</span>`;
+    html += `<span class="stat-pill visa">${visaCount} visa sponsored</span>`;
+    Object.entries(countByC).forEach(([c,n]) => html += `<span class="stat-pill">${FLAG[c]||''} ${c}: ${n}</span>`);
+    html += '</div>';
+
+    jobs.forEach(job => {
+      html += `<div class="job-card">
+        <div class="job-top">
+          <div class="job-title">${job.title}</div>
+          <div class="badge-row">
+            ${job.visaSponsored ? '<span class="badge visa">Visa ✓</span>' : ''}
+            ${job.englishOnly ? '<span class="badge english">English</span>' : ''}
+            <span class="badge country">${FLAG[job.country]||''} ${job.country}</span>
+          </div>
+        </div>
+        <div class="job-company">🏢 ${job.company}</div>
+        <div class="job-meta">
+          <span class="meta-item">📍 ${job.city}</span>
+          <span class="meta-item">· ${job.type}</span>
+          <span class="meta-item">· ${job.salary}/yr</span>
+          <span class="meta-item">· ${job.posted}</span>
+        </div>
+        <div class="job-desc">${job.description}</div>
+        <div class="req-row">${(job.requirements||[]).map(r=>`<span class="req-tag">${r}</span>`).join('')}</div>
+        <div class="job-footer">
+          <button class="btn-primary" onclick="openApplyStrategy('${job.title.replace(/'/g,"\\'")}','${job.company.replace(/'/g,"\\'")}','${job.country}')">Apply strategy</button>
+          <button class="btn-secondary" onclick="openCompanyInfo('${job.company.replace(/'/g,"\\'")}','${job.country}')">Company info</button>
+          <span class="portal-label">${job.portal}</span>
+        </div>
+      </div>`;
+    });
+    ra.innerHTML = html;
+  } catch(e) {
+    ra.innerHTML = '<div class="error">Something went wrong. Check your API key and try again.</div>';
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg> Search Visa-Sponsored Roles';
+}
+
+async function getStrategy(company, country, sector) {
+  const area = document.getElementById('strategyArea');
+  area.innerHTML = '<div class="loading"><div class="spinner"></div>Generating strategy for ' + company + '...</div>';
+  const prompt = `Give a concise, practical application strategy for a Senior Java Backend Engineer with 6+ years (Java 17, Spring Boot, Kubernetes, Kafka, GCP/AWS) applying to ${company} in ${country} (${sector} sector). Cover: tech stack they use, what to highlight, visa sponsorship status, one-paragraph recruiter message, and 2 key tips. Keep it under 250 words, use plain text no markdown symbols.`;
+  try {
+    const text = await callClaude(prompt);
+    area.innerHTML = `<div style="background:var(--blue-light);border:1px solid #b8cef5;border-radius:var(--radius-lg);padding:16px 20px;margin-top:16px;"><strong style="font-size:13px;color:var(--blue);">Strategy for ${company}, ${country}</strong><p style="font-size:13px;color:var(--text);line-height:1.7;margin-top:8px;white-space:pre-wrap;">${text}</p></div>`;
+  } catch(e) {
+    area.innerHTML = '<div class="error">Could not generate strategy. Check your API key.</div>';
+  }
+}
+
+async function openApplyStrategy(title, company, country) {
+  document.querySelector('.nav-item:nth-child(7)') && null;
+  const stratBtn = document.querySelectorAll('.nav-item')[4];
+  showPanel('strategy', stratBtn);
+  document.getElementById('stratCompany').value = company;
+  document.getElementById('stratCountry').value = country;
+  await generateStrategy();
+}
+
+async function openCompanyInfo(company, country) {
+  const stratBtn = document.querySelectorAll('.nav-item')[4];
+  showPanel('strategy', stratBtn);
+  document.getElementById('stratCompany').value = company;
+  document.getElementById('stratCountry').value = country;
+  await generateStrategy();
+}
+
+async function generateStrategy() {
+  const company = document.getElementById('stratCompany').value.trim();
+  const country = document.getElementById('stratCountry').value;
+  if (!company) { document.getElementById('stratResult').innerHTML = '<div class="error">Enter a company name.</div>'; return; }
+  const btn = document.getElementById('stratBtn');
+  btn.disabled = true; btn.textContent = 'Generating...';
+  const ra = document.getElementById('stratResult');
+  ra.innerHTML = '<div class="loading"><div class="spinner"></div>Building strategy for ' + company + '...</div>';
+  const prompt = `Give a concise, practical application strategy for a Senior Java Backend Engineer with 6+ years (Java 17, Spring Boot, Kubernetes, Kafka, GCP/AWS) applying to ${company} in ${country}. Cover: their tech stack, what to highlight from my background, visa sponsorship availability, a short recruiter outreach message I can copy, and 2 insider tips. Under 300 words. Plain text, no markdown symbols.`;
+  try {
+    const text = await callClaude(prompt);
+    ra.innerHTML = `<div style="background:var(--blue-light);border:1px solid #b8cef5;border-radius:var(--radius-lg);padding:16px 20px;"><strong style="font-size:13px;color:var(--blue);">Strategy for ${company}, ${country}</strong><p style="font-size:13px;color:var(--text);line-height:1.75;margin-top:8px;white-space:pre-wrap;">${text}</p></div>`;
+  } catch(e) {
+    ra.innerHTML = '<div class="error">Error generating strategy. Check your API key.</div>';
+  }
+  btn.disabled = false; btn.textContent = 'Generate Strategy';
+}
+</script>
+</body>
+</html>
