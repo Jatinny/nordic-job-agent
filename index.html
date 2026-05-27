@@ -188,8 +188,8 @@
       Top Companies
     </button>
     <button class="nav-item" onclick="showPanel('strategy', this)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-      Apply Strategy
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Cover Letter & Resume
     </button>
 
     <div class="profile-box">
@@ -252,6 +252,43 @@
               <option value="insurtech">Insurance Tech</option>
               <option value="logistics">Logistics / SaaS</option>
               <option value="tech">Tech / IT</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-grid3" style="margin-bottom:16px;">
+          <div class="form-group">
+            <label>Date posted</label>
+            <select id="dateFilter">
+              <option value="">Any time</option>
+              <option value="1">Last 24 hours</option>
+              <option value="3">Last 3 days</option>
+              <option value="7" selected>Last 7 days</option>
+              <option value="14">Last 14 days</option>
+              <option value="30">Last 30 days</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Portal</label>
+            <select id="portalFilter">
+              <option value="">All portals</option>
+              <option value="LinkedIn">LinkedIn</option>
+              <option value="Indeed">Indeed</option>
+              <option value="IamExpat Jobs">IamExpat Jobs</option>
+              <option value="TechMeAbroad">TechMeAbroad</option>
+              <option value="Undutchables">Undutchables</option>
+              <option value="The Hub">The Hub</option>
+              <option value="SverigeDev">SverigeDev</option>
+              <option value="Academic Work">Academic Work</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Sort by</label>
+            <select id="sortBy">
+              <option value="recent">Most recent</option>
+              <option value="salary">Highest salary</option>
+              <option value="visa">Visa sponsored first</option>
+              <option value="relevance">Most relevant</option>
             </select>
           </div>
         </div>
@@ -422,62 +459,68 @@
       <div id="strategyArea"></div>
     </div>
 
-    <!-- STRATEGY PANEL -->
+    <!-- APPLY PANEL -->
     <div class="panel" id="panel-strategy">
       <div class="page-header">
-        <h1>Application Strategy</h1>
-        <p>Tailored strategy for a Senior Java Backend Engineer relocating from India</p>
+        <h1>Apply to Job</h1>
+        <p>Generate a tailored cover letter and resume bullets for any job — powered by AI</p>
       </div>
 
-      <div class="banner green" style="margin-bottom:20px;">
-        <span>✅</span>
-        <span>For your profile (Java 17 + Spring Boot + Kubernetes + Kafka + GCP/AWS): Apply on LinkedIn → Message recruiter same day → Mention "open to relocation" + "require visa sponsorship".</span>
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;">
-        <div class="timing-card">
-          <h3>What to highlight</h3>
-          <div class="timing-row"><span class="label">Tech</span><span>Java 17, Spring Boot 3</span></div>
-          <div class="timing-row"><span class="label">Infra</span><span>Kubernetes, Docker, CI/CD</span></div>
-          <div class="timing-row"><span class="label">Messaging</span><span>Kafka, RabbitMQ</span></div>
-          <div class="timing-row"><span class="label">Cloud</span><span>GCP or AWS certified</span></div>
-          <div class="timing-row"><span class="label">Soft</span><span>English fluency, remote-ready</span></div>
-        </div>
-        <div class="timing-card">
-          <h3>Industry focus (NL)</h3>
-          <div class="timing-row"><span class="label">Fintech</span><span class="good">High demand</span></div>
-          <div class="timing-row"><span class="label">Insurance tech</span><span class="good">High demand</span></div>
-          <div class="timing-row"><span class="label">Logistics</span><span class="good">Good demand</span></div>
-          <div class="timing-row"><span class="label">SaaS</span><span class="good">Good demand</span></div>
-          <div class="timing-row"><span class="label">Gaming</span><span style="color:var(--muted);">Moderate</span></div>
-        </div>
-      </div>
-
-      <div class="timing-card" style="margin-bottom:16px;">
-        <h3>Recruiter message template (LinkedIn)</h3>
-        <div style="background:var(--bg);border-radius:8px;padding:14px;margin-top:10px;font-size:13px;line-height:1.8;color:var(--text);font-family:var(--mono);white-space:pre-wrap;">Hi [Name], I just applied for the [Role] position at [Company]. I'm a Senior Java Backend Engineer with 6+ years experience in Spring Boot, Kubernetes, and GCP/AWS, currently based in India and actively looking to relocate to [NL/SE] with visa sponsorship. Would love to connect and learn more about the team. Best, [Your Name]</div>
-      </div>
-
-      <div class="timing-card">
-        <h3>AI strategy generator</h3>
-        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Enter a company name and country to get a custom strategy powered by AI.</p>
-        <div class="form-grid2" style="margin-bottom:10px;">
+      <!-- Job context (auto-filled when clicking Apply from search) -->
+      <div class="search-card" style="margin-bottom:16px;">
+        <h3 style="font-size:14px;font-weight:600;margin-bottom:14px;">Job Details</h3>
+        <div class="form-grid2" style="margin-bottom:12px;">
           <div class="form-group">
-            <label>Company</label>
-            <input type="text" id="stratCompany" placeholder="e.g. Adyen" />
+            <label>Job Title</label>
+            <input type="text" id="applyTitle" placeholder="e.g. Senior Java Backend Engineer" />
           </div>
           <div class="form-group">
+            <label>Company</label>
+            <input type="text" id="applyCompany" placeholder="e.g. Adyen" />
+          </div>
+        </div>
+        <div class="form-grid2" style="margin-bottom:12px;">
+          <div class="form-group">
             <label>Country</label>
-            <select id="stratCountry">
+            <select id="applyCountry">
               <option value="Netherlands">Netherlands</option>
               <option value="Sweden">Sweden</option>
               <option value="Finland">Finland</option>
             </select>
           </div>
+          <div class="form-group">
+            <label>Your Full Name</label>
+            <input type="text" id="applyName" placeholder="e.g. Rahul Sharma" />
+          </div>
         </div>
-        <button class="search-btn" onclick="generateStrategy()" id="stratBtn">Generate Strategy</button>
-        <div id="stratResult" style="margin-top:14px;"></div>
+        <div class="form-group" style="margin-bottom:12px;">
+          <label>Job Description (paste here)</label>
+          <textarea id="applyJD" rows="5" placeholder="Paste the full job description here for best results..." style="font-family:var(--font);font-size:13px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);color:var(--text);width:100%;resize:vertical;outline:none;line-height:1.6;"></textarea>
+        </div>
+        <div class="form-group" style="margin-bottom:12px;">
+          <label>Your Current Resume / Experience Summary (optional but recommended)</label>
+          <textarea id="applyResume" rows="5" placeholder="Paste your current resume or key experience points here. The AI will tailor them to match the job description..." style="font-family:var(--font);font-size:13px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);color:var(--text);width:100%;resize:vertical;outline:none;line-height:1.6;"></textarea>
+        </div>
+
+        <!-- Generate buttons -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+          <button class="search-btn" onclick="generateCoverLetter()" id="clBtn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            Cover Letter
+          </button>
+          <button class="search-btn" style="background:var(--green);" onclick="generateResumeBullets()" id="rbBtn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            Resume Bullets
+          </button>
+          <button class="search-btn" style="background:var(--amber);" onclick="generateLinkedInMsg()" id="liBtn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            LinkedIn Message
+          </button>
+        </div>
       </div>
+
+      <!-- Output area -->
+      <div id="applyOutput"></div>
     </div>
 
   </main>
@@ -520,6 +563,9 @@ async function runSearch() {
   const exp = document.getElementById('expLevel').value;
   const type = document.getElementById('jobType').value;
   const industry = document.getElementById('industry').value;
+  const dateFilter = document.getElementById('dateFilter').value;
+  const portalFilter = document.getElementById('portalFilter').value;
+  const sortBy = document.getElementById('sortBy').value;
   const countries = getSelectedCountries();
   if (countries.length === 0) { document.getElementById('resultsArea').innerHTML = '<div class="error">Select at least one country.</div>'; return; }
 
@@ -529,31 +575,79 @@ async function runSearch() {
   ra.innerHTML = '<div class="loading"><div class="spinner"></div>Searching visa-sponsored roles in ' + countries.join(', ') + '...</div>';
 
   const portalList = countries.map(c => `${FLAG[c]} ${c}: ${PORTALS[c].join(', ')}`).join('\n');
+  const dateLabel = dateFilter ? `posted within last ${dateFilter} days` : 'any date';
+  const portalLabel = portalFilter ? `preferably from ${portalFilter}` : 'any portal';
+
   const prompt = `You are a European tech job search agent for senior Indian engineers (Java/Spring Boot/Kubernetes) relocating to Netherlands/Sweden with visa sponsorship.
 
 Role: ${title} | ${location ? 'Location: '+location : 'Any city'} | Experience: ${exp} | Type: ${type} | Industry: ${industry}
 Countries: ${countries.join(', ')}
-Portals: ${portalList}
+Date filter: ${dateLabel}
+Portal preference: ${portalLabel}
+Portals available: ${portalList}
 
-Return ONLY a JSON array of ${Math.min(countries.length * 3, 9)} realistic job listings. Each object:
-- title, company (real NL/SE companies), country, city, type, salary (EUR for NL/FI, SEK for SE), portal, description (2 sentences mentioning Java/Spring Boot/Kubernetes), requirements (array of 4 tech strings), posted ("X days ago"), visaSponsored (bool, bias true for NL), englishOnly (bool)
+Return ONLY a JSON array of ${Math.min(countries.length * 3, 9)} realistic job listings. Each object MUST have:
+- title, company (real NL/SE companies), country, city, type
+- salary (number in EUR for NL/FI, SEK for SE — e.g. 85000)
+- salaryCurrency ("EUR" or "SEK")
+- portal (must be one of the portals listed above${portalFilter ? ', prefer ' + portalFilter : ''})
+- description (2 sentences mentioning Java/Spring Boot/Kubernetes)
+- requirements (array of 4 tech strings)
+- postedDaysAgo (number, ${dateFilter ? 'between 1 and ' + dateFilter : 'between 1 and 30'})
+- visaSponsored (bool, bias true for NL)
+- englishOnly (bool)
 
 Return only raw JSON array, no markdown.`;
 
   try {
     const text = await callClaude(prompt);
-    const jobs = JSON.parse(text.replace(/```json|```/g,'').trim());
+    let jobs = JSON.parse(text.replace(/```json|```/g,'').trim());
+
+    // Apply portal filter client-side
+    if (portalFilter) {
+      jobs = jobs.filter(j => j.portal && j.portal.toLowerCase().includes(portalFilter.toLowerCase()));
+      if (jobs.length === 0) {
+        ra.innerHTML = '<div class="error">No jobs found for that portal filter. Try "All portals".</div>';
+        btn.disabled = false;
+        btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg> Search Visa-Sponsored Roles';
+        return;
+      }
+    }
+
+    // Sort jobs
+    if (sortBy === 'recent') {
+      jobs.sort((a, b) => (a.postedDaysAgo || 0) - (b.postedDaysAgo || 0));
+    } else if (sortBy === 'salary') {
+      jobs.sort((a, b) => {
+        const sa = a.salaryCurrency === 'SEK' ? (a.salary || 0) / 11 : (a.salary || 0);
+        const sb = b.salaryCurrency === 'SEK' ? (b.salary || 0) / 11 : (b.salary || 0);
+        return sb - sa;
+      });
+    } else if (sortBy === 'visa') {
+      jobs.sort((a, b) => (b.visaSponsored ? 1 : 0) - (a.visaSponsored ? 1 : 0));
+    }
+
     const visaCount = jobs.filter(j => j.visaSponsored).length;
     const countByC = {};
     jobs.forEach(j => { countByC[j.country] = (countByC[j.country]||0)+1; });
 
+    const sortLabel = { recent: 'Most recent', salary: 'Highest salary', visa: 'Visa first', relevance: 'Most relevant' }[sortBy];
+
     let html = '<div class="stats-row">';
     html += `<span class="stat-pill">${jobs.length} jobs found</span>`;
     html += `<span class="stat-pill visa">${visaCount} visa sponsored</span>`;
+    html += `<span class="stat-pill">↕ ${sortLabel}</span>`;
     Object.entries(countByC).forEach(([c,n]) => html += `<span class="stat-pill">${FLAG[c]||''} ${c}: ${n}</span>`);
     html += '</div>';
 
     jobs.forEach(job => {
+      const salaryDisplay = job.salary ? `${job.salaryCurrency === 'SEK' ? '₭' : '€'}${Number(job.salary).toLocaleString()}` : 'Salary not listed';
+      const postedLabel = job.postedDaysAgo === 1 ? '1 day ago' : job.postedDaysAgo ? `${job.postedDaysAgo} days ago` : 'Recently';
+      const portalIcon = job.portal && job.portal.toLowerCase().includes('linkedin') ? '🔵' :
+                         job.portal && job.portal.toLowerCase().includes('indeed') ? '🟣' :
+                         job.portal && job.portal.toLowerCase().includes('techmeabroad') ? '🟠' :
+                         job.portal && job.portal.toLowerCase().includes('iamexpat') ? '🟢' : '⚪';
+
       html += `<div class="job-card">
         <div class="job-top">
           <div class="job-title">${job.title}</div>
@@ -567,24 +661,189 @@ Return only raw JSON array, no markdown.`;
         <div class="job-meta">
           <span class="meta-item">📍 ${job.city}</span>
           <span class="meta-item">· ${job.type}</span>
-          <span class="meta-item">· ${job.salary}/yr</span>
-          <span class="meta-item">· ${job.posted}</span>
+          <span class="meta-item">· ${salaryDisplay}/yr</span>
+          <span class="meta-item">· 🕐 ${postedLabel}</span>
+          <span class="meta-item">· ${portalIcon} ${job.portal}</span>
         </div>
         <div class="job-desc">${job.description}</div>
         <div class="req-row">${(job.requirements||[]).map(r=>`<span class="req-tag">${r}</span>`).join('')}</div>
         <div class="job-footer">
-          <button class="btn-primary" onclick="openApplyStrategy('${job.title.replace(/'/g,"\\'")}','${job.company.replace(/'/g,"\\'")}','${job.country}')">Apply strategy</button>
-          <button class="btn-secondary" onclick="openCompanyInfo('${job.company.replace(/'/g,"\\'")}','${job.country}')">Company info</button>
-          <span class="portal-label">${job.portal}</span>
+          <button class="btn-primary" onclick="openApplyPanel('${job.title.replace(/'/g,"\\'")}','${job.company.replace(/'/g,"\\'")}','${job.country}','${job.description.replace(/'/g,"\\'")}')">✍ Cover Letter</button>
+          <button class="btn-secondary" onclick="openResumePanel('${job.title.replace(/'/g,"\\'")}','${job.company.replace(/'/g,"\\'")}','${job.country}','${job.description.replace(/'/g,"\\'")}')">📄 Resume Bullets</button>
+          <span class="portal-label">${portalIcon} ${job.portal}</span>
         </div>
       </div>`;
     });
     ra.innerHTML = html;
   } catch(e) {
-    ra.innerHTML = '<div class="error">Something went wrong. Check your API key and try again.</div>';
+    ra.innerHTML = '<div class="error">Something went wrong: ' + e.message + '</div>';
   }
   btn.disabled = false;
   btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg> Search Visa-Sponsored Roles';
+}
+
+function openApplyPanel(title, company, country, description) {
+  const stratBtn = document.querySelectorAll('.nav-item')[4];
+  showPanel('strategy', stratBtn);
+  document.getElementById('applyTitle').value = title;
+  document.getElementById('applyCompany').value = company;
+  document.getElementById('applyCountry').value = country;
+  document.getElementById('applyJD').value = description;
+  document.getElementById('applyOutput').innerHTML = '';
+  window.scrollTo(0,0);
+}
+
+function openResumePanel(title, company, country, description) {
+  openApplyPanel(title, company, country, description);
+  setTimeout(() => generateResumeBullets(), 300);
+}
+
+function getApplyContext() {
+  const title = document.getElementById('applyTitle').value.trim();
+  const company = document.getElementById('applyCompany').value.trim();
+  const country = document.getElementById('applyCountry').value;
+  const name = document.getElementById('applyName').value.trim() || 'Your Name';
+  const jd = document.getElementById('applyJD').value.trim();
+  const resume = document.getElementById('applyResume').value.trim();
+  return { title, company, country, name, jd, resume };
+}
+
+function renderOutput(html) {
+  document.getElementById('applyOutput').innerHTML = html;
+}
+
+function copyText(id) {
+  const el = document.getElementById(id);
+  navigator.clipboard.writeText(el.innerText || el.value).then(() => {
+    const btn = el.parentElement.querySelector('.copy-btn');
+    if (btn) { btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = '📋 Copy', 2000); }
+  });
+}
+
+async function generateCoverLetter() {
+  const { title, company, country, name, jd, resume } = getApplyContext();
+  if (!title || !company) { renderOutput('<div class="error">Please fill in Job Title and Company first.</div>'); return; }
+
+  const btn = document.getElementById('clBtn');
+  btn.disabled = true; btn.textContent = 'Generating...';
+  renderOutput('<div class="loading"><div class="spinner"></div>Writing your cover letter...</div>');
+
+  const prompt = `Write a professional cover letter for the following job application.
+
+Applicant: ${name}
+Applying for: ${title} at ${company}, ${country}
+Profile: Senior Java Backend Engineer, 6+ years, Java 17, Spring Boot, Kubernetes, Kafka, GCP/AWS, based in India, seeking relocation with visa sponsorship
+${jd ? 'Job Description:\n' + jd : ''}
+${resume ? 'Applicant Resume/Experience:\n' + resume : ''}
+
+Write a compelling, professional cover letter that:
+1. Opens with a strong hook mentioning the specific role and company
+2. Highlights relevant Java/Spring Boot/Kubernetes/Cloud experience matching the JD
+3. Mentions relocation willingness and visa sponsorship requirement naturally
+4. Shows knowledge of what the company does
+5. Closes with a clear call to action
+
+Format: 4 paragraphs, professional tone, no generic filler phrases. Address it "Dear Hiring Manager," and sign off with "${name}". Plain text only, no markdown.`;
+
+  try {
+    const text = await callClaude(prompt);
+    renderOutput(`
+      <div class="timing-card" style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <h3>✍ Cover Letter — ${title} at ${company}</h3>
+          <button class="copy-btn btn-secondary" style="font-size:12px;padding:5px 12px;" onclick="copyText('clOutput')">📋 Copy</button>
+        </div>
+        <div id="clOutput" style="background:var(--bg);border-radius:var(--radius);padding:16px;font-size:13px;line-height:1.9;color:var(--text);white-space:pre-wrap;font-family:var(--font);">${text}</div>
+      </div>
+      <div class="banner green"><span>💡</span><span>Paste this into your email or the company's application portal. Customise the opening line if you know the hiring manager's name.</span></div>
+    `);
+  } catch(e) {
+    renderOutput('<div class="error">Error: ' + e.message + '</div>');
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Cover Letter';
+}
+
+async function generateResumeBullets() {
+  const { title, company, country, jd, resume } = getApplyContext();
+  if (!title || !company) { renderOutput('<div class="error">Please fill in Job Title and Company first.</div>'); return; }
+
+  const btn = document.getElementById('rbBtn');
+  btn.disabled = true; btn.textContent = 'Generating...';
+  renderOutput('<div class="loading"><div class="spinner"></div>Tailoring your resume bullets...</div>');
+
+  const prompt = `You are a professional resume writer. Tailor resume bullet points for this job application.
+
+Role applying for: ${title} at ${company}, ${country}
+Candidate profile: Senior Java Backend Engineer, 6+ years, Java 17, Spring Boot 3, Kubernetes, Kafka, GCP/AWS, Microservices, Docker, CI/CD
+${jd ? 'Job Description:\n' + jd : ''}
+${resume ? 'Current Resume/Experience:\n' + resume : ''}
+
+Generate:
+1. PROFESSIONAL SUMMARY (3 lines max) — tailored to this specific role and company
+2. KEY SKILLS — 10 skills most relevant to this JD, formatted as comma-separated list
+3. EXPERIENCE BULLET POINTS — 6 strong, quantified bullet points tailored to match this JD. Use action verbs. Include metrics where possible (e.g. "reduced latency by 40%", "handled 10M+ requests/day").
+4. KEYWORDS TO ADD — list 8 ATS keywords from the JD that should appear in the resume
+
+Plain text, use clear section headers, no markdown symbols.`;
+
+  try {
+    const text = await callClaude(prompt);
+    renderOutput(`
+      <div class="timing-card" style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <h3>📄 Resume Bullets — ${title} at ${company}</h3>
+          <button class="copy-btn btn-secondary" style="font-size:12px;padding:5px 12px;" onclick="copyText('rbOutput')">📋 Copy</button>
+        </div>
+        <div id="rbOutput" style="background:var(--bg);border-radius:var(--radius);padding:16px;font-size:13px;line-height:1.9;color:var(--text);white-space:pre-wrap;font-family:var(--font);">${text}</div>
+      </div>
+      <div class="banner green"><span>💡</span><span>Copy these bullets into your resume. Make sure the ATS keywords appear verbatim in your resume to pass automated screening.</span></div>
+    `);
+  } catch(e) {
+    renderOutput('<div class="error">Error: ' + e.message + '</div>');
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> Resume Bullets';
+}
+
+async function generateLinkedInMsg() {
+  const { title, company, country, name, jd } = getApplyContext();
+  if (!title || !company) { renderOutput('<div class="error">Please fill in Job Title and Company first.</div>'); return; }
+
+  const btn = document.getElementById('liBtn');
+  btn.disabled = true; btn.textContent = 'Generating...';
+  renderOutput('<div class="loading"><div class="spinner"></div>Writing your LinkedIn message...</div>');
+
+  const prompt = `Write a short, compelling LinkedIn recruiter outreach message for this job application.
+
+From: ${name} — Senior Java Backend Engineer, 6+ years, Java 17, Spring Boot, Kubernetes, Kafka, GCP/AWS, based in India, seeking relocation to ${country} with visa sponsorship
+Applying to: ${title} at ${company}, ${country}
+${jd ? 'Job context:\n' + jd.substring(0, 300) : ''}
+
+Write 3 versions:
+1. CONNECTION REQUEST NOTE (under 300 chars) — for sending a connection request
+2. FOLLOW-UP AFTER APPLYING (3-4 sentences) — sent after submitting application
+3. COLD OUTREACH TO HIRING MANAGER (4-5 sentences) — if not applied yet
+
+Keep each punchy, specific to ${company}, mention Java/Spring Boot, and mention relocation + visa sponsorship naturally. Plain text only.`;
+
+  try {
+    const text = await callClaude(prompt);
+    renderOutput(`
+      <div class="timing-card" style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <h3>💬 LinkedIn Messages — ${company}</h3>
+          <button class="copy-btn btn-secondary" style="font-size:12px;padding:5px 12px;" onclick="copyText('liOutput')">📋 Copy</button>
+        </div>
+        <div id="liOutput" style="background:var(--bg);border-radius:var(--radius);padding:16px;font-size:13px;line-height:1.9;color:var(--text);white-space:pre-wrap;font-family:var(--font);">${text}</div>
+      </div>
+      <div class="banner green"><span>💡</span><span>Send the connection request note first. Once connected, follow up with the longer message within 24–48 hours of applying.</span></div>
+    `);
+  } catch(e) {
+    renderOutput('<div class="error">Error: ' + e.message + '</div>');
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> LinkedIn Message';
 }
 
 async function getStrategy(company, country, sector) {
@@ -595,43 +854,34 @@ async function getStrategy(company, country, sector) {
     const text = await callClaude(prompt);
     area.innerHTML = `<div style="background:var(--blue-light);border:1px solid #b8cef5;border-radius:var(--radius-lg);padding:16px 20px;margin-top:16px;"><strong style="font-size:13px;color:var(--blue);">Strategy for ${company}, ${country}</strong><p style="font-size:13px;color:var(--text);line-height:1.7;margin-top:8px;white-space:pre-wrap;">${text}</p></div>`;
   } catch(e) {
-    area.innerHTML = '<div class="error">Could not generate strategy. Check your API key.</div>';
+    area.innerHTML = '<div class="error">Could not generate strategy.</div>';
   }
 }
 
 async function openApplyStrategy(title, company, country) {
-  document.querySelector('.nav-item:nth-child(7)') && null;
   const stratBtn = document.querySelectorAll('.nav-item')[4];
   showPanel('strategy', stratBtn);
-  document.getElementById('stratCompany').value = company;
-  document.getElementById('stratCountry').value = country;
-  await generateStrategy();
+  document.getElementById('applyTitle').value = title;
+  document.getElementById('applyCompany').value = company;
+  document.getElementById('applyCountry').value = country;
 }
 
 async function openCompanyInfo(company, country) {
-  const stratBtn = document.querySelectorAll('.nav-item')[4];
-  showPanel('strategy', stratBtn);
-  document.getElementById('stratCompany').value = company;
-  document.getElementById('stratCountry').value = country;
-  await generateStrategy();
+  openApplyStrategy('', company, country);
 }
 
 async function generateStrategy() {
-  const company = document.getElementById('stratCompany').value.trim();
-  const country = document.getElementById('stratCountry').value;
-  if (!company) { document.getElementById('stratResult').innerHTML = '<div class="error">Enter a company name.</div>'; return; }
-  const btn = document.getElementById('stratBtn');
-  btn.disabled = true; btn.textContent = 'Generating...';
-  const ra = document.getElementById('stratResult');
-  ra.innerHTML = '<div class="loading"><div class="spinner"></div>Building strategy for ' + company + '...</div>';
-  const prompt = `Give a concise, practical application strategy for a Senior Java Backend Engineer with 6+ years (Java 17, Spring Boot, Kubernetes, Kafka, GCP/AWS) applying to ${company} in ${country}. Cover: their tech stack, what to highlight from my background, visa sponsorship availability, a short recruiter outreach message I can copy, and 2 insider tips. Under 300 words. Plain text, no markdown symbols.`;
+  const company = document.getElementById('applyCompany').value.trim();
+  const country = document.getElementById('applyCountry').value;
+  if (!company) { document.getElementById('applyOutput').innerHTML = '<div class="error">Enter a company name.</div>'; return; }
+  renderOutput('<div class="loading"><div class="spinner"></div>Building strategy for ' + company + '...</div>');
+  const prompt = `Give a concise, practical application strategy for a Senior Java Backend Engineer with 6+ years (Java 17, Spring Boot, Kubernetes, Kafka, GCP/AWS) applying to ${company} in ${country}. Cover: their tech stack, what to highlight, visa sponsorship availability, a short recruiter outreach message, and 2 insider tips. Under 300 words. Plain text, no markdown.`;
   try {
     const text = await callClaude(prompt);
-    ra.innerHTML = `<div style="background:var(--blue-light);border:1px solid #b8cef5;border-radius:var(--radius-lg);padding:16px 20px;"><strong style="font-size:13px;color:var(--blue);">Strategy for ${company}, ${country}</strong><p style="font-size:13px;color:var(--text);line-height:1.75;margin-top:8px;white-space:pre-wrap;">${text}</p></div>`;
+    renderOutput(`<div style="background:var(--blue-light);border:1px solid #b8cef5;border-radius:var(--radius-lg);padding:16px 20px;"><strong style="font-size:13px;color:var(--blue);">Strategy for ${company}, ${country}</strong><p style="font-size:13px;color:var(--text);line-height:1.75;margin-top:8px;white-space:pre-wrap;">${text}</p></div>`);
   } catch(e) {
-    ra.innerHTML = '<div class="error">Error generating strategy. Check your API key.</div>';
+    renderOutput('<div class="error">Error: ' + e.message + '</div>');
   }
-  btn.disabled = false; btn.textContent = 'Generate Strategy';
 }
 </script>
 </body>
