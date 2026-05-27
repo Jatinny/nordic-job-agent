@@ -14,26 +14,21 @@ export default async function handler(req, res) {
     const ADZUNA_KEY = process.env.ADZUNA_APP_KEY;
 
     if (!ADZUNA_ID || !ADZUNA_KEY) {
-      return res.status(500).json({ error: 'ADZUNA_APP_ID or ADZUNA_APP_KEY not set in environment variables' });
+      return res.status(500).json({ error: 'ADZUNA_APP_ID or ADZUNA_APP_KEY not set' });
     }
 
     const CC = { Netherlands: 'nl', Sweden: 'se', Finland: 'fi' };
     const cc = CC[country] || 'nl';
     const pageNum = page || 1;
 
-    const params = new URLSearchParams({
-      app_id: ADZUNA_ID,
-      app_key: ADZUNA_KEY,
-      results_per_page: '10',
-      what: query || 'Java Backend Engineer',
-      'content-type': 'application/json',
-      sort_by: 'date'
-    });
-
-    if (salary_min) params.set('salary_min', salary_min);
-    if (date_posted) params.set('days_old', date_posted);
-
-    const url = `https://api.adzuna.com/v1/api/jobs/${cc}/search/${pageNum}?${params.toString()}`;
+    let url = `https://api.adzuna.com/v1/api/jobs/${cc}/search/${pageNum}`;
+    url += `?app_id=${ADZUNA_ID}`;
+    url += `&app_key=${ADZUNA_KEY}`;
+    url += `&results_per_page=10`;
+    url += `&what=${encodeURIComponent(query || 'Java Backend Engineer')}`;
+    url += `&sort_by=date`;
+    if (salary_min) url += `&salary_min=${salary_min}`;
+    if (date_posted) url += `&days_old=${date_posted}`;
 
     try {
       const r = await fetch(url, {
@@ -42,11 +37,13 @@ export default async function handler(req, res) {
 
       const text = await r.text();
 
-      // Check if response is actually JSON
+      // Return full debug info so we can see exactly what Adzuna sends
       if (!text.startsWith('{') && !text.startsWith('[')) {
-        return res.status(500).json({ 
-          error: 'Adzuna returned non-JSON response', 
-          detail: text.substring(0, 200),
+        return res.status(500).json({
+          error: 'Adzuna non-JSON response',
+          status: r.status,
+          headers: Object.fromEntries(r.headers.entries()),
+          body: text.substring(0, 500),
           url: url.replace(ADZUNA_KEY, '***')
         });
       }
