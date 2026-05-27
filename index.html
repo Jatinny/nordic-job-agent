@@ -134,10 +134,10 @@ textarea{resize:vertical;line-height:1.6}
     </div>
     <div class="g3">
       <div class="fg"><label>Date posted</label>
-        <select id="s-date"><option value="">Any time</option><option value="1">Last 24 hours</option><option value="3">Last 3 days</option><option value="7" selected>Last 7 days</option><option value="14">Last 14 days</option><option value="30">Last 30 days</option></select>
+        <select id="s-date"><option value="" selected>Any time</option><option value="1">Last 24 hours</option><option value="3">Last 3 days</option><option value="7">Last 7 days</option><option value="14">Last 14 days</option><option value="30">Last 30 days</option></select>
       </div>
       <div class="fg"><label>Min salary (EUR/yr)</label>
-        <select id="s-sal"><option value="">Any salary</option><option value="50000">€50k+</option><option value="70000">€70k+</option><option value="90000" selected>€90k+</option><option value="110000">€110k+</option></select>
+        <select id="s-sal"><option value="" selected>Any salary</option><option value="50000">€50k+</option><option value="70000">€70k+</option><option value="90000">€90k+</option><option value="110000">€110k+</option></select>
       </div>
       <div class="fg"><label>Sort by</label>
         <select id="s-sort"><option value="date">Most recent</option><option value="salary">Highest salary</option><option value="relevance">Most relevant</option></select>
@@ -335,14 +335,10 @@ async function runSearch(page){
     for(var i=0;i<countries.length;i++){
       var country=countries[i];
       var query=title+(loc?' '+loc:'');
-      var data=await callAPI({
-        type:'jobs',
-        query:query,
-        country:country,
-        page:CUR_PAGE,
-        ...(date?{date_posted:date}:{}),
-        ...(sal?{salary_min:sal}:{})
-      });
+      var apiBody={type:'jobs',query:query,country:country,page:CUR_PAGE};
+      if(date && parseInt(date)>0) apiBody.date_posted=parseInt(date);
+      if(sal && parseInt(sal)>0) apiBody.salary_min=parseInt(sal);
+      var data=await callAPI(apiBody);
       if(data.jobs && data.jobs.length){
         // Tag each job with country
         data.jobs.forEach(function(j){j._country=country});
