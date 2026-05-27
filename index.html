@@ -415,20 +415,17 @@ async function runSearch(){
 
   var portalList=countries.map(function(c){return FLAG[c]+' '+c+': '+PORTALS[c].join(', ')}).join('\n');
 
-  var prompt='You are a European tech job search agent for senior Indian engineers (Java/Spring Boot/Kubernetes) relocating to Netherlands/Sweden with visa sponsorship.\n\n'+
-    'Role: '+title+' | '+(loc?'Location: '+loc:'Any city')+' | Experience: '+exp+' | Type: '+type+' | Industry: '+ind+'\n'+
+  var prompt='You are a European tech job search agent for senior Indian engineers relocating to Netherlands/Sweden with visa sponsorship.\n\n'+
+    'Search: '+title+' | '+(loc||'Any city')+' | '+exp+' | '+type+' | '+ind+'\n'+
     'Countries: '+countries.join(', ')+'\n'+
-    (dateF?'Date: posted within last '+dateF+' days\n':'')+
+    (dateF?'Max days posted: '+dateF+'\n':'')+
     (portalF?'Prefer portal: '+portalF+'\n':'')+
     'Portals: '+portalList+'\n\n'+
-    'Return ONLY a JSON array of 15 realistic job listings spread across the selected countries. Each object must have exactly:\n'+
-    'title (string), company (real well-known company in that country), country (string), city (string), type (string), '+
-    'salary (number e.g. 85000), salaryCurrency (EUR or SEK), portal (one of the portals listed), '+
-    'description (unique 2 sentence description for each job mentioning Java/Spring Boot/Kubernetes), '+
-    'requirements (array of exactly 4 tech strings), postedDaysAgo (number 1-'+(dateF||30)+'), '+
-    'visaSponsored (boolean), englishOnly (boolean)\n\n'+
-    'IMPORTANT: Every job must have a UNIQUE description. Do not repeat descriptions.\n'+
-    'Return only raw JSON array, no markdown, no explanation.';
+    'Return a JSON array of exactly 10 job listings. Each object must have ONLY these fields:\n'+
+    '"t":title, "co":company, "cn":country, "ci":city, "ty":type, "s":salary number, "sc":"EUR" or "SEK", '+
+    '"p":portal name, "d":one unique sentence about the role mentioning Java or Spring Boot, '+
+    '"r":array of 3 tech strings, "da":postedDaysAgo number, "v":visaSponsored bool, "e":englishOnly bool\n\n'+
+    'CRITICAL: Use short field names as listed. Keep description under 15 words. Return ONLY the JSON array.';
 
   try{
     var text=await callAPI(prompt);
@@ -439,13 +436,13 @@ async function runSearch(){
       if(filtered.length) jobs=filtered;
     }
 
-    if(sortBy==='recent') jobs.sort(function(a,b){return (a.postedDaysAgo||0)-(b.postedDaysAgo||0)});
+    if(sortBy==='recent') jobs.sort(function(a,b){return (a.da||a.postedDaysAgo||0)-(b.da||b.postedDaysAgo||0)});
     else if(sortBy==='salary') jobs.sort(function(a,b){
-      var sa=a.salaryCurrency==='SEK'?(a.salary||0)/11:(a.salary||0);
-      var sb=b.salaryCurrency==='SEK'?(b.salary||0)/11:(b.salary||0);
+      var sa=(a.sc||a.salaryCurrency)==='SEK'?(a.s||a.salary||0)/11:(a.s||a.salary||0);
+      var sb=(b.sc||b.salaryCurrency)==='SEK'?(b.s||b.salary||0)/11:(b.s||b.salary||0);
       return sb-sa;
     });
-    else if(sortBy==='visa') jobs.sort(function(a,b){return (b.visaSponsored?1:0)-(a.visaSponsored?1:0)});
+    else if(sortBy==='visa') jobs.sort(function(a,b){return ((b.v||b.visaSponsored)?1:0)-((a.v||a.visaSponsored)?1:0)});
 
     ALL_JOBS=jobs;
     PAGE=1;
@@ -482,36 +479,51 @@ function renderPage(){
 
   pageJobs.forEach(function(job, i){
     var idx=start+i;
-    var sym=job.salaryCurrency==='SEK'?'SEK ':'€';
-    var sal=job.salary?sym+Number(job.salary).toLocaleString():'Not listed';
-    var posted=job.postedDaysAgo===1?'1 day ago':(job.postedDaysAgo?job.postedDaysAgo+' days ago':'Recently');
-    var pIcon=portalIcon(job.portal);
-    var applyURL=portalSearchURL(job.portal, job.title, job.company);
+    // Support both short field names and long field names
+    var title=job.t||job.title||'';
+    var company=job.co||job.company||'';
+    var country=job.cn||job.country||'';
+    var city=job.ci||job.city||'';
+    var type=job.ty||job.type||'';
+    var salary=job.s||job.salary||0;
+    var salCur=job.sc||job.salaryCurrency||'EUR';
+    var portal=job.p||job.portal||'';
+    var desc=job.d||job.description||'';
+    var reqs=job.r||job.requirements||[];
+    var daysAgo=job.da||job.postedDaysAgo||0;
+    var visaS=job.v||job.visaSponsored||false;
+    var engOnly=job.e||job.englishOnly||false;
+
+    var sym=salCur==='SEK'?'SEK ':'€';
+    var sal=salary?sym+Number(salary).toLocaleString():'Not listed';
+    var posted=daysAgo===1?'1 day ago':(daysAgo?daysAgo+' days ago':'Recently');
+    var pIcon=portalIcon(portal);
+    var applyURL=portalSearchURL(portal, title, company);
 
     html+='<div class="jc">';
-    html+='<div class="jt"><div class="jtitle">'+job.title+'</div>';
+    html+='<div class="jt"><div class="jtitle">'+title+'</div>';
     html+='<div class="br">';
-    if(job.visaSponsored) html+='<span class="badge visa">Visa ✓</span>';
-    if(job.englishOnly) html+='<span class="badge english">English</span>';
-    html+='<span class="badge country">'+(FLAG[job.country]||'')+' '+job.country+'</span>';
+    if(visaS) html+='<span class="badge visa">Visa ✓</span>';
+    if(engOnly) html+='<span class="badge english">English</span>';
+    html+='<span class="badge country">'+(FLAG[country]||'')+' '+country+'</span>';
     html+='</div></div>';
-    html+='<div class="jco">🏢 '+job.company+'</div>';
+    html+='<div class="jco">🏢 '+company+'</div>';
     html+='<div class="jm">';
-    html+='<span class="mi">📍 '+job.city+'</span>';
-    html+='<span class="mi">· '+job.type+'</span>';
+    html+='<span class="mi">📍 '+city+'</span>';
+    html+='<span class="mi">· '+type+'</span>';
     html+='<span class="mi">· '+sal+'/yr</span>';
     html+='<span class="mi">· 🕐 '+posted+'</span>';
-    html+='<span class="mi">· '+pIcon+' '+job.portal+'</span>';
+    html+='<span class="mi">· '+pIcon+' '+portal+'</span>';
     html+='</div>';
-    html+='<div class="jd">'+job.description+'</div>';
+    html+='<div class="jd">'+desc+'</div>';
     html+='<div class="rr">';
-    (job.requirements||[]).forEach(function(r){html+='<span class="rt">'+r+'</span>'});
+    reqs.forEach(function(r){html+='<span class="rt">'+r+'</span>'});
     html+='</div>';
     html+='<div class="jf">';
     html+='<button class="btn btn-blue btn-sm" data-idx="'+idx+'" onclick="coverFromJob(this)">✍ Cover Letter</button>';
     html+='<button class="btn btn-outline btn-sm" data-idx="'+idx+'" onclick="resumeFromJob(this)">📄 Resume Bullets</button>';
-    html+='<a class="btn btn-green btn-sm" href="'+applyURL+'" target="_blank" rel="noopener">🔗 Apply on '+job.portal+'</a>';
-    html+='<span class="pl">'+pIcon+' '+job.portal+'</span>';
+    html+='<a class="btn btn-green btn-sm" href="'+applyURL+'" target="_blank" rel="noopener">🔗 Apply on '+portal+'</a>';
+    html+='<span class="pl">'+pIcon+' '+portal+'</span>';
     html+='</div></div>';
   });
 
@@ -541,10 +553,10 @@ function coverFromJob(btn){
   var idx=parseInt(btn.dataset.idx);
   var job=ALL_JOBS[idx];
   if(!job) return;
-  document.getElementById('a-title').value=job.title||'';
-  document.getElementById('a-company').value=job.company||'';
-  document.getElementById('a-country').value=job.country||'Netherlands';
-  document.getElementById('a-jd').value=job.description||'';
+  document.getElementById('a-title').value=job.t||job.title||'';
+  document.getElementById('a-company').value=job.co||job.company||'';
+  document.getElementById('a-country').value=job.cn||job.country||'Netherlands';
+  document.getElementById('a-jd').value=job.d||job.description||'';
   document.getElementById('applyOut').innerHTML='';
   showPanel('apply');
   window.scrollTo(0,0);
