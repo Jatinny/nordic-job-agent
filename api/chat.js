@@ -8,7 +8,6 @@ export default async function handler(req, res) {
 
   const { type, prompt, query, country, page, salary_min, date_posted } = req.body;
 
-  // ── ADZUNA job search ──────────────────────────────────────────
   if (type === 'jobs') {
     const ADZUNA_ID  = process.env.ADZUNA_APP_ID;
     const ADZUNA_KEY = process.env.ADZUNA_APP_KEY;
@@ -21,14 +20,24 @@ export default async function handler(req, res) {
     const cc = CC[country] || 'nl';
     const pageNum = page || 1;
 
-    let url = `https://api.adzuna.com/v1/api/jobs/${cc}/search/${pageNum}`;
-    url += `?app_id=${ADZUNA_ID}`;
-    url += `&app_key=${ADZUNA_KEY}`;
-    url += `&results_per_page=10`;
-    url += `&what=${encodeURIComponent(query || 'Java Backend Engineer')}`;
-    url += `&sort_by=date`;
-    if (salary_min) url += `&salary_min=${salary_min}`;
-    if (date_posted) url += `&days_old=${date_posted}`;
+    // Build clean URL — only add optional params if they have valid values
+    const params = new URLSearchParams();
+    params.set('app_id', ADZUNA_ID);
+    params.set('app_key', ADZUNA_KEY);
+    params.set('results_per_page', '50');
+    params.set('what', query || 'Java Backend Engineer');
+    params.set('sort_by', 'date');
+
+    if (salary_min && !isNaN(parseInt(salary_min))) {
+      params.set('salary_min', parseInt(salary_min));
+    }
+
+    // Correct Adzuna parameter for date filter
+    if (date_posted && !isNaN(parseInt(date_posted))) {
+      params.set('max_days_old', parseInt(date_posted));
+    }
+
+    const url = `https://api.adzuna.com/v1/api/jobs/${cc}/search/${pageNum}?${params.toString()}`;
 
     try {
       const r = await fetch(url, {
@@ -37,27 +46,24 @@ export default async function handler(req, res) {
 
       const text = await r.text();
 
-      // Return full debug info so we can see exactly what Adzuna sends
       if (!text.startsWith('{') && !text.startsWith('[')) {
         return res.status(500).json({
-          error: 'Adzuna non-JSON response',
+          error: 'Adzuna error',
           status: r.status,
-          headers: Object.fromEntries(r.headers.entries()),
-          body: text.substring(0, 500),
+          body: text.substring(0, 300),
           url: url.replace(ADZUNA_KEY, '***')
         });
       }
 
       const data = JSON.parse(text);
-      if (!r.ok) return res.status(r.status).json({ error: 'Adzuna error', detail: data });
+      if (!r.ok) return res.status(r.status).json({ error: 'Adzuna API error', detail: data });
       return res.status(200).json({ jobs: data.results || [], total: data.count || 0 });
 
     } catch (e) {
-      return res.status(500).json({ error: 'Adzuna fetch failed', detail: e.message });
+      return res.status(500).json({ error: 'Fetch failed', detail: e.message });
     }
   }
 
-  // ── Groq AI ────────────────────────────────────────────────────
   if (type === 'ai') {
     if (!process.env.GROQ_API_KEY) {
       return res.status(500).json({ error: 'GROQ_API_KEY not set' });
