@@ -507,9 +507,10 @@ async function callClaude(prompt) {
   const res = await fetch("/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 1000, messages: [{ role: "user", content: prompt }] })
+    body: JSON.stringify({ prompt })
   });
   const data = await res.json();
+  if (data.error) throw new Error(data.error);
   return data.content.map(b => b.text || '').join('');
 }
 
