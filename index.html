@@ -336,9 +336,11 @@ async function runSearch(page){
       var country=countries[i];
       var query=title+(loc?' '+loc:'');
       var apiBody={type:'jobs',query:query,country:country,page:CUR_PAGE};
-      if(date && parseInt(date)>0) apiBody.date_posted=parseInt(date);
       if(sal && parseInt(sal)>0) apiBody.salary_min=parseInt(sal);
+      if(date && parseInt(date)>0) apiBody.date_posted=parseInt(date);
       var data=await callAPI(apiBody);
+
+
       if(data.jobs && data.jobs.length){
         // Tag each job with country
         data.jobs.forEach(function(j){j._country=country});
