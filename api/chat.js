@@ -7,15 +7,12 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   if (!process.env.GROQ_API_KEY) {
-    return res.status(500).json({ error: 'GROQ_API_KEY is not set in environment variables' });
+    return res.status(500).json({ error: 'GROQ_API_KEY environment variable is not set' });
   }
 
   try {
     const { prompt } = req.body;
-
-    if (!prompt) {
-      return res.status(400).json({ error: 'No prompt in request body' });
-    }
+    if (!prompt) return res.status(400).json({ error: 'No prompt provided' });
 
     const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -25,21 +22,16 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
-        max_tokens: 2000,
+        max_tokens: 8000,
         temperature: 0.7,
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ]
+        messages: [{ role: 'user', content: prompt }]
       })
     });
 
     const data = await groqRes.json();
 
     if (!groqRes.ok) {
-      return res.status(groqRes.status).json({ error: 'Groq error', detail: data });
+      return res.status(groqRes.status).json({ error: 'Groq API error', detail: data });
     }
 
     const text = data.choices?.[0]?.message?.content || '';
