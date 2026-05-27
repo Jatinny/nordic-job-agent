@@ -627,6 +627,9 @@ Return only raw JSON array, no markdown.`;
       jobs.sort((a, b) => (b.visaSponsored ? 1 : 0) - (a.visaSponsored ? 1 : 0));
     }
 
+    // Store jobs globally so buttons can reference by index safely
+    window._jobs = jobs;
+
     const visaCount = jobs.filter(j => j.visaSponsored).length;
     const countByC = {};
     jobs.forEach(j => { countByC[j.country] = (countByC[j.country]||0)+1; });
@@ -640,7 +643,7 @@ Return only raw JSON array, no markdown.`;
     Object.entries(countByC).forEach(([c,n]) => html += `<span class="stat-pill">${FLAG[c]||''} ${c}: ${n}</span>`);
     html += '</div>';
 
-    jobs.forEach(job => {
+    jobs.forEach((job, idx) => {
       const salaryDisplay = job.salary ? `${job.salaryCurrency === 'SEK' ? '₭' : '€'}${Number(job.salary).toLocaleString()}` : 'Salary not listed';
       const postedLabel = job.postedDaysAgo === 1 ? '1 day ago' : job.postedDaysAgo ? `${job.postedDaysAgo} days ago` : 'Recently';
       const portalIcon = job.portal && job.portal.toLowerCase().includes('linkedin') ? '🔵' :
@@ -668,8 +671,8 @@ Return only raw JSON array, no markdown.`;
         <div class="job-desc">${job.description}</div>
         <div class="req-row">${(job.requirements||[]).map(r=>`<span class="req-tag">${r}</span>`).join('')}</div>
         <div class="job-footer">
-          <button class="btn-primary" onclick="openApplyPanel('${job.title.replace(/'/g,"\\'")}','${job.company.replace(/'/g,"\\'")}','${job.country}','${job.description.replace(/'/g,"\\'")}')">✍ Cover Letter</button>
-          <button class="btn-secondary" onclick="openResumePanel('${job.title.replace(/'/g,"\\'")}','${job.company.replace(/'/g,"\\'")}','${job.country}','${job.description.replace(/'/g,"\\'")}')">📄 Resume Bullets</button>
+          <button class="btn-primary" onclick="openApplyPanel(${idx})">✍ Cover Letter</button>
+          <button class="btn-secondary" onclick="openResumePanel(${idx})">📄 Resume Bullets</button>
           <span class="portal-label">${portalIcon} ${job.portal}</span>
         </div>
       </div>`;
@@ -682,19 +685,22 @@ Return only raw JSON array, no markdown.`;
   btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg> Search Visa-Sponsored Roles';
 }
 
-function openApplyPanel(title, company, country, description) {
+function openApplyPanel(idx) {
+  const job = window._jobs && window._jobs[idx];
   const stratBtn = document.querySelectorAll('.nav-item')[4];
   showPanel('strategy', stratBtn);
-  document.getElementById('applyTitle').value = title;
-  document.getElementById('applyCompany').value = company;
-  document.getElementById('applyCountry').value = country;
-  document.getElementById('applyJD').value = description;
+  if (job) {
+    document.getElementById('applyTitle').value = job.title || '';
+    document.getElementById('applyCompany').value = job.company || '';
+    document.getElementById('applyCountry').value = job.country || 'Netherlands';
+    document.getElementById('applyJD').value = job.description || '';
+  }
   document.getElementById('applyOutput').innerHTML = '';
-  window.scrollTo(0,0);
+  window.scrollTo(0, 0);
 }
 
-function openResumePanel(title, company, country, description) {
-  openApplyPanel(title, company, country, description);
+function openResumePanel(idx) {
+  openApplyPanel(idx);
   setTimeout(() => generateResumeBullets(), 300);
 }
 
